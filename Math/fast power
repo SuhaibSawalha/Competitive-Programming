@@ -1,0 +1,11 @@
+long long fastpow (long long v, long long p) {
+  long long res = 1;
+  while (p) { 
+    if (p & 1) {
+      res *= v; 
+    }
+    p /= 2;
+    v *= v;
+  } 
+  return res; 
+}
