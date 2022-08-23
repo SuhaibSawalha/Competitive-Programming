@@ -1,0 +1,110 @@
+template <int alpha = 26, int MinVal = 'a', typename T = string> 
+struct Trie {
+
+  struct node {
+    node* next[alpha] = {};
+    int last = 0 , cnt = 0;
+  };
+  node* root = new node();
+
+  void insert (T &s) {
+    node* cur = root;
+    int n = s.size();
+    for (int i = 0; i < n; ++i) {
+      int c = s[i] - MinVal;
+      if (cur -> next[c] == nullptr) {
+        cur -> next[c] = new node();
+      }
+      cur = cur -> next[c];
+      cur -> cnt ++;
+    }
+    cur -> last ++;
+  }
+
+  int count (T &s) {
+    node* cur = root;
+    int n = s.size();
+    for (int i = 0; i < s.size(); ++i) {
+      int c = s[i] - MinVal;
+      if (cur -> next[c] == nullptr || cur -> next[c] -> cnt == 0) {
+        return 0;
+      }
+      cur = cur -> next[c];
+    }
+    return cur -> last;
+  }
+
+  int prefix (T &s) {
+    node* cur = root;
+    int n = s.size();
+    for (int i = 0; i < n; ++i){
+      int c = s[i] - MinVal;
+      if (cur -> next[c] == nullptr || cur -> next[c] -> cnt == 0) {
+        return 0;
+      }
+      cur = cur -> next[c];
+    }
+    return cur -> cnt; 
+  }
+
+  void erase (T &s) {
+    node* cur = root;
+    int n = s.size();
+    for (int i = 0; i < s.size(); ++i) {
+      int c = s[i] - MinVal;
+      cur = cur -> next[c];
+      cur -> cnt--;
+    }
+    cur -> last--;
+  }
+
+  int unique (node *u) {
+    int ans = (u -> last ? 1 : 0);
+    for (int i = 0; i < alpha; ++i) {
+      if (u -> next[i] != nullptr)
+        ans += unique(u -> next[i]);
+    }
+    return ans;
+  }
+
+  int unique () {
+    return unique(root);
+  }
+
+  int size () {
+    int ans = 0;
+    for (int i = 0; i < alpha; ++i) {
+      if (root -> next[i] != nullptr) {
+        ans += root -> next[i] -> cnt;
+      }
+    }
+    return ans;
+  }
+
+  vector<T> print (bool mul) {
+    vector <T> ans;
+    function <void(node*, T)> dfs = [&] (node* u, T s) {
+      int k = u -> last;
+      if (!mul && k) {
+        k = 1;
+      }
+      while (k--) {
+        ans.push_back(s);
+      }
+      for (int i = 0; i < alpha; ++i){
+        if (u -> next[i] != nullptr && u -> next[i] -> cnt) {
+          dfs(u -> next[i] , s + char('a'+i));
+        }
+      }
+    };
+    dfs(root, "");
+    return ans;
+  }
+
+  vector<string> print () {
+    return move(print(1));
+  }
+  vector<string> print_unique () {
+    return move(print(0));
+  }
+};
