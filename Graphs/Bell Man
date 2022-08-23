@@ -1,0 +1,32 @@
+vector <long long> dist;
+bool BellMan (int src, vector<vector<array<int, 2>>> &adj) {
+  int n = adj.size();
+  dist.resize(n, 1e18);
+  vector <bool> inQ(n);
+  dist[src] = 0;
+  queue <int> q;
+  q.push(src);
+  inQ[src] = true;
+  int nn = n;
+  while (nn--) {
+    int s = q.size();
+    while (s--){
+      int u = q.front();
+      q.pop();
+      inQ[u] = false;
+      for (auto& v : adj[u]) {
+        if (dist[u] + v[1] < dist[v[0]]) {
+          if (!nn) {
+            return false;
+          }
+          dist[v[0]] = dist[u] + v[1];
+          if (!inQ[v[0]]) {
+            q.push(v[0]);
+            inQ[v[0]] = true;
+          }
+        }
+      }
+    }
+  }
+  return true;
+}
