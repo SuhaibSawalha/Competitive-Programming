@@ -1,0 +1,15 @@
+vector<int> fail;
+template <class T = string> 
+void kmp (T &s){
+  int n = s.size();
+  fail.resize(n);
+  fail[0] = 0;
+  int len = 0;
+  for (int i = 1; i < n; ++i) {
+    len = fail[i - 1];
+    while (len && s[len] != s[i]) {
+      len = fail[len - 1];
+    }
+    fail[i] = len + (s[len] == s[i]);
+  }
+}
