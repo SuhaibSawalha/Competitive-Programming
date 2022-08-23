@@ -1,0 +1,23 @@
+vector<long long> dis;
+void Dijkstra (int src, vector<vector<array<int, 2>>> &adj) {
+  dis.assign(adj.size(), (long long)1e18);
+  using T = pair<long long, int>;
+  priority_queue<T, vector<T>, greater<T>> pq;
+  pq.push({0, src});
+  dis[src] = 0;
+  while (!pq.empty()) {
+    int u;
+    long long d;
+    tie(d, u) = pq.top();
+    pq.pop();
+    if (d != dis[u]) {
+      continue;
+    }
+    for (auto& v : adj[u]) {
+      if (d + v[1] < dis[v[0]]) {
+        dis[v[0]] = d + v[1];
+        pq.push({dis[v[0]], v[0]});
+      }
+    }
+  }
+}
