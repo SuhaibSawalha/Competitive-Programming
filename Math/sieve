@@ -1,0 +1,15 @@
+vector<bool> prime;
+void sieve (int Num) {
+  prime = vector<bool>(Num+1, 1);
+  prime[0] = prime[1] = false;
+  for (int i = 4; i <= Num; i += 2) {
+    prime[i] = false;
+  }
+  for (int i = 3; i * i <= Num; i += 2) {
+    if (prime[i]){
+      for (int j = i * i; j <= Num; j += i) {
+        prime[j] = false;
+      }
+    }
+  }
+}
