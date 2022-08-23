@@ -1,0 +1,21 @@
+vector<int> z;
+template <class T = string>
+void Z (T &s){
+  int n = s.size();
+  z.resize(n);
+  z[0] = n;
+  for (int i = 1, st = 1, en = 1; i < n; ++i) {
+    int pos = i - st;
+    if (z[pos] + i >= en) {
+      st = i;
+      en = max(en, st);
+      while (en < n && s[en] == s[en - st]) {
+        ++en;
+      } 
+      z[i] = en - st;  
+    }
+    else {
+      z[i] = z[pos];
+    }
+  }
+}
