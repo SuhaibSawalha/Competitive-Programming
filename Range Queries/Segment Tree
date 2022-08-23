@@ -1,0 +1,131 @@
+template <typename T>
+class segtree {
+
+  private:
+
+    int n;
+    struct node {
+      // don't forget to set default value (used for leaves)
+
+      ...
+
+      int size = 1;
+      long long lazy = 0;
+      void Lazy(long long laz){
+
+        ...
+
+        // the last thing is update the lazy
+      }
+    };
+    vector<node> seg;
+
+    node merge (const node& lf, const node& rt){
+      node ret;
+      ret.size = lf.size + rt.size;
+
+      ...
+
+      return ret;
+    }
+
+    void push_down(int idx){
+      long long& lazy = seg[idx].lazy;
+      if (!lazy){
+        return;
+      }
+      seg[2*idx+1].Lazy(lazy);
+      seg[2*idx+2].Lazy(lazy);
+      lazy = 0;
+    }
+
+    void build (int idx, int l, int r){
+      if (l == r){
+        return;
+      }
+      int mid = l + (r - l) / 2, lf = 2 * idx + 1, rt = lf + 1;
+      build(lf,l,mid);
+      build(rt,mid+1,r);
+      seg[idx] = merge(seg[lf],seg[rt]);
+    }
+
+    void build (int idx, int l, int r, vector<T>& v){
+      if (l == r){
+        seg[idx].Lazy(v[l]);
+        return;
+      }
+      int mid = l + (r - l) / 2, lf = 2 * idx + 1, rt = lf + 1;
+      build(lf,l,mid,v);
+      build(rt,mid+1,r,v);
+      seg[idx] = merge(seg[lf],seg[rt]);
+    }
+
+    node query (int idx, int st, int en, int l, int r){
+      if (l >= st && r <= en){
+        return seg[idx];
+      }
+      if (l > en || r < st){
+        return node{};
+      }
+      push_down(idx);
+      int mid = l + (r - l) / 2, lf = 2 * idx + 1, rt = lf + 1;
+      return merge (query(lf,st,en,l,mid),query(rt,st,en,mid+1,r));
+    }
+
+    void update (int idx, int st, int en, long long lazy, int l, int r){
+      if (l >= st && r <= en){
+        seg[idx].Lazy(lazy);
+        return;
+      }
+      if (l > en || r < st){
+        return;
+      }
+      push_down(idx);
+      int mid = l + (r - l) / 2, lf = 2 * idx + 1, rt = lf + 1;
+      update(lf,st,en,lazy,l,mid);
+      update(rt,st,en,lazy,mid+1,r);
+      seg[idx] = merge(seg[lf],seg[rt]);
+    }
+
+    void print (int idx){
+      push_down(idx);
+      if (seg[idx].size == 1){
+        return;
+      }
+      print(2*idx+1);
+      print(2*idx+2);
+    }
+
+  public:
+
+    segtree (int _n): n(_n){
+      seg = vector<node>(4*n);
+      build(0,0,n-1);
+    }
+
+    segtree (vector<T>& v): n(v.size()){
+      seg = vector<node>(4*n);
+      build(0,0,n-1,v);
+    }
+
+    node query (int st, int en){
+      return query(0,st,en,0,n-1);
+    }
+
+    node query (int st) {
+      return query(st, st);
+    }
+
+    void update (int st, int en, long long lazy){
+      update(0,st,en,lazy,0,n-1);
+    }
+
+    void update (int st, long long lazy){
+      update(0,st,st,lazy,0,n-1);
+    }
+
+    void print(){
+      print(0);
+      cout << "\n";
+    }
+};
