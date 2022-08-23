@@ -1,0 +1,10 @@
+int Ndivisors (long long x) {
+  int ans = 0;
+  for (long long i = 1; i * i <= x; ++i) {
+    if (x % i == 0) {
+      ++ans;
+      ans += (i * i != x);
+    }
+  }
+  return ans;
+}
