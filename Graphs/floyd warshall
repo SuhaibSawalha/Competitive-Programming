@@ -1,0 +1,43 @@
+template <class T> 
+struct floyd {
+  vector <vector<T>> SP;
+  int n;
+  T MAX = INT_MAX;
+
+  floyd (int _n): n(_n), SP(_n, vector<T>(_n)) {
+    for (int i = 0; i < n; ++i) {
+      for (int j = 0; j < n; ++j) {
+        SP[i][j] = (i == j ? 0 : MAX);
+      }
+    }
+  }
+
+  void add (int u, int v, T c) {
+    SP[u][v] = min (SP[u][v], c);
+  }
+
+  void init () {
+    for (int k = 0; k < n; ++k) {
+      for (int u = 0; u < n; ++u) {
+        for (int v = 0; v < n; ++v) {
+          if (SP[u][k] < MAX && SP[k][v] < MAX) {
+            SP[u][v] = min (SP[u][v], SP[u][k] + SP[k][v]);
+          }
+        }
+      }
+    }
+  }
+
+  bool NegativeCycle () {
+    for (int k = 0; k < n; ++k) {
+      for (int u = 0; u < n; ++u) {
+        for (int v = 0; v < n; ++v) {
+          if (SP[u][k] < MAX && SP[k][v] < MAX && SP[k][k] < 0) {
+            return true;
+          }
+        }
+      }
+    }
+    return false;
+  }
+};
