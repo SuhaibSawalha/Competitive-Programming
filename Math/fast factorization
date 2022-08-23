@@ -1,0 +1,26 @@
+vector<int> prime;
+void sieve (int Num) {
+  prime = vector<int>(Num+1);
+  for (int i = 2; i <= Num; i += 2) {
+    prime[i] = 2;
+  }
+  for (int i = 3; i <= Num; i += 2) {
+    prime[i] = i;
+  }
+  for (int i = 3; i * i <= Num; i += 2) {
+    if (prime[i] == i) {
+      for (int j = i*i; j <= Num; j += i) {
+        prime[j] = i;
+      }
+    }
+  }
+}
+
+vector<int> fastfact (int x) {
+  vector<int> ans;
+  while (x > 1) {
+    ans.push_back(prime[x]);
+    x /= prime[x];
+  }
+  return ans;
+}
