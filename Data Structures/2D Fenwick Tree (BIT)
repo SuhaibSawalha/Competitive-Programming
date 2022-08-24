@@ -1,0 +1,32 @@
+template <typename T>
+struct fenwick2D {
+
+  vector<vector<T>> BIT;
+  int n, m;
+
+  fenwick2D (int _n, int _m): n(_n + 1), m(_m + 1) {
+    BIT.resize(n + 1, vector<T>(m + 1));
+  }
+
+  void update (int i, int j, T val) {
+    for (++i, ++j; i <= n; i += i & -i) {
+      for (int j2 = j; j2 <= m; j2 += j2 & -j2) {
+        BIT[i][j2] += val;
+      }
+    }
+  }
+
+  T query (int i, int j) {
+    T sum = 0;
+    for (++i, ++j; i; i -= i & -i) {
+      for (int j2 = j; j2; j2 -= j2 & -j2) {
+        sum += BIT[i][j2];
+      }
+    }
+    return sum;
+  }
+
+  T query (int x, int y, int x2, int y2) {
+    return query(x2, y2) - query(x2, y - 1) - query(x - 1, y2) + query(x - 1, y - 1);
+  }
+};
