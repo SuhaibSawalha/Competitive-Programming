@@ -1,0 +1,75 @@
+template <int alpha = 26, int MinVal = 'a', typename T = string> 
+struct AhoCorasick {
+  struct node {
+    node* next[alpha] = {};
+    node* fail = nullptr;
+    int last = 0, cnt = 0, index = 0;
+    vector <int> id;
+    vector<int> children;
+  };
+  node* root = new node();
+  int size = 0, Cnt = 0;
+ 
+  int insert (T& s, int id) {
+    node* cur = root;
+    int n = s.size();
+    for (int i = 0; i < n; ++i) {
+      int c = s[i] - MinVal;
+      if (!cur-> next[c]) {
+        cur-> children.push_back(c);
+        cur-> next[c] = new node();
+        cur-> next[c]-> index = ++Cnt;
+      }
+      cur = cur-> next[c];
+      cur-> cnt ++;
+    }
+    if (!cur-> last) {
+      ++size;
+      cur-> id.push_back(id);
+    }
+    cur-> last ++;
+    return cur-> id[0];
+  }
+ 
+  node* go (node* f, int i) {
+    while (f && !f-> next[i]) {
+      f = f-> fail;
+    } 
+    return f ? f-> next[i] : root;
+  }
+ 
+  void push_links () {
+    queue<node*> q;
+    int sizek = root-> children.size();
+    for (int i = 0; i < sizek; ++i) {
+      node* u = root-> next[root-> children[i]];
+      u-> fail = root;
+      q.push(u);
+    }
+    while (!q.empty()) {
+      node* u = q.front();
+      q.pop();
+      sizek = u-> children.size();
+      for (int i = 0; i < sizek; ++i) {
+        node* v = u-> next[u-> children[i]];
+        v-> fail = go(u-> fail, u-> children[i]);
+        q.push(v);
+        for (int id : v-> fail-> id) {
+          v-> id.push_back(id);
+        }
+      } 
+    }
+  }
+ 
+  vector<vector<int>> match (T& s) { 
+    vector<vector<int>> oc(size);
+    node* cur = root;
+    for (int i = 0; i < s.size(); ++i) {
+      cur = go(cur, s[i] - MinVal);
+      for (int id : cur-> id) {
+        oc[id].push_back(i);
+      }
+    }
+    return oc;
+  }
+};
