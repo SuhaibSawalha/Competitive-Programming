@@ -1,0 +1,68 @@
+template<typename T> 
+struct Dinic {
+
+  vector<vector<pair<int, T>>> adj, adj2;
+  vector<T> cap;
+  vector<int> visited, dist, st;
+  int vid = 0, cur = 0, snk;
+  T MAX;
+
+  Dinic (int n): adj(n), visited(n), dist(n), 
+    st(n), MAX(numeric_limits<T>::max()) {}
+
+  void add (int u, int v, T c, T rc = 0) {
+    adj[u].push_back({v, cap.size()}); cap.push_back(c);
+    adj[v].push_back({u, cap.size()}); cap.push_back(rc);
+  }
+
+  T dfs (int u, T fl) {
+    if (u == snk) {
+      return fl;
+    }
+    for (; st[u] < adj[u].size(); ++st[u]) {
+      auto v = adj[u][st[u]];
+      if (dist[u] + 1 == dist[v.first] && cap[v.second]) {
+        T f = dfs(v.first, min(fl, cap[v.second]));
+        if (f) {
+          cap[v.second] -= f;
+          cap[v.second^1] += f;
+          return f;
+        }
+      }
+    }
+    return 0;
+  }
+
+  bool bfs (int src) {
+    ++vid;
+    visited[src] = vid;
+    queue<int> q{{src}};
+    dist[src] = 0;
+    while (!q.empty()) {
+      int u = q.front();
+      q.pop();
+      for (auto& e : adj[u]) {
+        int v = e.first;
+        if (visited[v] == vid || !cap[e.second]) {
+          continue;
+        }
+        visited[v] = vid;
+        dist[v] = dist[u] + 1;
+        q.push(v);
+      }
+    }
+    return visited[snk] == vid;
+  }
+
+  T MaxFlow (int src, int en) {
+    snk = en;
+    T mf = 0, flow;
+    while (bfs(src)) {
+    	fill(st.begin(), st.end(), 0);
+      while (flow = dfs(src, MAX)) {
+        mf += flow;
+      }
+    }
+    return mf;
+  }
+};
