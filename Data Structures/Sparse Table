@@ -1,0 +1,26 @@
+template <class T> struct Sparse_Table {
+  vector <vector<T>> sp;
+  vector <int> lg {-1};
+  int n;
+  function<T(T, T)> merge;
+
+  Sparse_Table (vector<T> &v, function<T(T, T)> fun) {
+    merge = fun;
+    n = v.size();
+    for (int i = 1; i <= n; ++i){
+      lg.push_back(lg.back() + ! (i & (i - 1)));  
+    }
+    sp.resize(lg[n] + 1, vector<T>(n));
+    sp[0] = v;
+    for (int i = 1; i <= lg[n]; ++i) {
+      for (int j = 0; j <= n - (1 << i); ++j) {
+        sp[i][j] = merge(sp[i - 1][j], sp[i - 1][j + (1 << i - 1)]);
+      }
+    }
+  }
+
+  T query (int l, int r) {
+    int k = lg[r - l + 1];
+    return merge(sp[k][l], sp[k][r - (1 << k) + 1]);
+  }
+};
