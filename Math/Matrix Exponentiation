@@ -1,0 +1,41 @@
+template <class T>
+struct matrix {
+  vector<vector<T>> a;
+  matrix (vector<vector<long long>> b) {
+    a.resize(2, vector<T>(2));
+    for (int i = 0; i < 2; ++i) {
+      for (int j = 0; j < 2; ++j) {
+        a[i][j] = b[i][j];
+      }
+    }
+  }
+
+  T& operator() (int i, int j) {
+    return a[i][j];
+  }
+
+  friend matrix operator* (matrix& a, matrix &b) {
+    matrix c({{0, 0}, {0, 0}});
+    for (int i = 0; i < 2; ++i) {
+      for (int j = 0; j < 2; ++j) {
+        for (int k = 0; k < 2; ++k) {
+          c(i, k) += a(i, j) * b(j, k);
+        }
+      }
+    }
+    return c;
+  }
+};
+using mat = matrix<Mint>;
+
+mat exp (mat a, long long p) {
+  mat res({{1, 0}, {0, 1}});
+  while (p) {
+    if (p & 1) {
+      res = res * a;
+    }
+    p /= 2;
+    a = a * a;
+  }
+  return res;
+}
