@@ -1,0 +1,26 @@
+template <typename T> 
+struct Point {
+  T x, y;
+  Point(): x(0), y(0) {}
+  Point(T _x, T _y): x(_x), y(_y) {}
+
+  friend istream& operator >> (istream& i, Point& p) {i >> p.x >> p.y;}
+  friend ostream& operator << (ostream& o, Point p) {cout << "(" << p.x << ", " << p.y << ")\n";}
+  friend bool operator == (Point& p, Point& q) {return p.x == q.x && p.y == q.y;}
+  friend bool operator != (Point& p, Point& q) {return p.x != q.x || p.y != q.y;}
+
+  friend Point operator + (Point& p, Point& q) {return Point(p.x+q.x, p.y+q.y);}
+  friend Point operator - (Point& p, Point& q) {return Point(p.x-q.x, p.y-q.y);}
+  friend Point operator * (Point& p, T q) {return Point(p.x*q, p.y*q);}
+  friend Point operator * (T q, Point& p) {return Point(p.x*q, p.y*q);}
+  friend Point operator / (Point& p, T q) {return Point(p.x/q, p.y/q);}
+
+  Point& operator += (Point& q) {x += q.x, y += q.y; return *this;}
+  Point& operator -= (Point& q) {x -= q.x, y -= q.y; return *this;}
+  Point& operator *= (T q) {x *= q, y *= q; return *this;}
+  Point& operator /= (T q) {x /= q, y /= q; return *this;}
+
+  friend T operator ^ (Point& p, Point& q) {return sqrt(abs(p.x-q.x)+abs(p.y-q.y));}
+  friend Point operator | (Point& p, Point& q) {return Point((p.x+q.x)/2, (p.y+q.y)/2);}
+};
+using P = Point<long double>;
