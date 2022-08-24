@@ -1,0 +1,46 @@
+struct BitTrie {
+  struct node {
+    node* child[2] = {};
+    int size = 0;
+  };
+  node* root = new node;
+
+  void insert (int n) {
+    node *cur = root;
+    for (int bit = 62; ~bit; --bit) {
+      int index = n >> bit & 1;
+      if (!cur-> child[index]) {
+        cur-> child[index] = new node;
+      }
+      cur = cur-> child[index];
+      ++cur-> size;
+    }
+  }
+
+  void erase (int n) {
+    node *cur = root;
+    for (int bit = 62; ~bit; --bit) {
+      cur = cur-> child[n >> bit & 1];
+      --cur-> size;
+    }
+  }
+
+  int operator^ (int a) {
+    int ans = 0, v = 0;
+    node *cur = root;
+    for (int bit = 62; ~bit; --bit) {
+      int index = a >> bit & 1;
+      if (cur-> child[index ^ 1] && cur-> child[index ^ 1]-> size) {
+        cur = cur-> child[index ^ 1];
+        ans ^= 1LL << bit;
+      }
+      else if (cur-> child[index]-> size) {
+        cur = cur-> child[index];
+      }
+      else {
+        return 0;
+      }
+    }
+    return ans;
+  }
+};
