@@ -1,0 +1,45 @@
+struct MO {
+  int n, BLOCK;
+  vector<int> a;
+  MO (int _n): a(_n), n(_n), BLOCK(sqrt(n)) {}
+  MO (vector<int> &_a): a(_a), n(_a.size()), BLOCK(sqrt(_a.size())) {}
+
+  struct query {
+    int l, r, id, B;
+    pair<int, int> P () {
+      return make_pair(l / B, ((l / B) & 1) ? -r : r);
+    }
+    bool operator< (query &q) {
+      return P() < q.P();
+    }
+  };
+  vector<query> qs;
+
+  void query (int l, int r) {
+    qs.push_back({l, r, (int)qs.size(), BLOCK});
+  }
+
+  long long res = 0;
+  void add (int x) {
+    res += x;
+  }
+
+  void rem (int x) {
+    res -= x;
+  }
+
+  vector<long long> solve () {
+    sort(qs.begin(), qs.end());
+    int q = qs.size();
+    vector<long long> ans(q);
+    int s = 1, e = 0;
+    for (int i = 0; i < q; ++i) {
+      while (e < qs[i].r) add(a[++e]);
+      while (s > qs[i].l) add(a[--s]);
+      while (s < qs[i].l) rem(a[s++]);
+      while (e > qs[i].r) rem(a[e--]);
+      ans[qs[i].id] = res;
+    }
+    return ans;
+  }
+};
