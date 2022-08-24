@@ -1,0 +1,228 @@
+template <typename T>
+class segtree {
+
+  private:
+
+    int n;
+    struct node {
+      // don't forget to set default value (used for leaves)
+
+      T mx = 0;
+
+      int size = 1;
+      long long lazy = 0;
+      void Lazy(long long laz){
+
+        mx = laz;
+
+        // the last thing is update the lazy
+      }
+    };
+    vector<node> seg;
+
+    node merge (const node& lf, const node& rt){
+      node ret;
+      ret.size = lf.size + rt.size;
+
+      ret.mx = max(lf.mx, rt.mx);
+
+      return ret;
+    }
+
+    void push_down(int idx){
+      long long& lazy = seg[idx].lazy;
+      if (!lazy){
+        return;
+      }
+      seg[2*idx+1].Lazy(lazy);
+      seg[2*idx+2].Lazy(lazy);
+      lazy = 0;
+    }
+
+    void build (int idx, int l, int r){
+      if (l == r){
+        return;
+      }
+      int mid = l + (r - l) / 2, lf = 2 * idx + 1, rt = lf + 1;
+      build(lf,l,mid);
+      build(rt,mid+1,r);
+      seg[idx] = merge(seg[lf],seg[rt]);
+    }
+
+    void build (int idx, int l, int r, vector<T>& v){
+      if (l == r){
+        seg[idx].Lazy(v[l]);
+        return;
+      }
+      int mid = l + (r - l) / 2, lf = 2 * idx + 1, rt = lf + 1;
+      build(lf,l,mid,v);
+      build(rt,mid+1,r,v);
+      seg[idx] = merge(seg[lf],seg[rt]);
+    }
+
+    node query (int idx, int st, int en, int l, int r){
+      if (l >= st && r <= en){
+        return seg[idx];
+      }
+      if (l > en || r < st){
+        return node{};
+      }
+      push_down(idx);
+      int mid = l + (r - l) / 2, lf = 2 * idx + 1, rt = lf + 1;
+      return merge (query(lf,st,en,l,mid),query(rt,st,en,mid+1,r));
+    }
+
+    void update (int idx, int st, int en, long long lazy, int l, int r){
+      if (l >= st && r <= en){
+        seg[idx].Lazy(lazy);
+        return;
+      }
+      if (l > en || r < st){
+        return;
+      }
+      push_down(idx);
+      int mid = l + (r - l) / 2, lf = 2 * idx + 1, rt = lf + 1;
+      update(lf,st,en,lazy,l,mid);
+      update(rt,st,en,lazy,mid+1,r);
+      seg[idx] = merge(seg[lf],seg[rt]);
+    }
+
+    void print (int idx){
+      push_down(idx);
+      // cout << seg[idx].mx << " ";
+      if (seg[idx].size == 1){
+        return;
+      }
+      print(2*idx+1);
+      print(2*idx+2);
+    }
+
+  public:
+
+    void init (int _n){
+      n = _n;
+      seg = vector<node>(4*n);
+      build(0,0,n-1);
+    }
+
+    void init (vector<T>& v){
+      n = v.size();
+      seg = vector<node>(4*n);
+      build(0,0,n-1,v);
+    }
+
+    node query (int st, int en){
+      return query(0,st,en,0,n-1);
+    }
+
+    node query (int st) {
+      return query(st, st);
+    }
+
+    void update (int st, int en, long long lazy){
+      update(0,st,en,lazy,0,n-1);
+    }
+
+    void update (int st, long long lazy){
+      update(0,st,st,lazy,0,n-1);
+    }
+
+    void print(){
+      print(0);
+      cout << "\n";
+    }
+};
+
+template <class T>
+struct HLD { // values in edges
+
+  int n, curP = 0;
+  vector<int> par, sub, depth, pos, chain, heavy, upos;
+  vector<T> val;
+
+  HLD (vector<vector<array<int, 2>>>& adj): n(adj.size()), par(adj.size()), sub(adj.size()), upos(adj.size()), 
+    depth(adj.size()), pos(adj.size()), chain(adj.size()), heavy(adj.size()), val(adj.size()) {
+    par[0] = -1;
+    function<void(int)> dfs = [&] (int u) {
+      sub[u] = 1;
+      heavy[u] = -1;
+      int mx = 0, mxv[0];
+      for (auto& v : adj[u]) {
+        if (v[0] != par[u]) {
+          val[v[0]] = v[1];
+          par[v[0]] = u;
+          depth[v[0]] = depth[u] + 1;
+          dfs(v[0]);
+          sub[u] += sub[v[0]];
+          if (sub[v[0]] > mx) {
+            mx = sub[v[0]];
+            mxv[0] = v[0];
+          }
+        }
+      }
+      if (2 * mx > sub[u]) {
+        heavy[u] = mxv[0];
+      }
+    };
+    function<void(int, int)> dfs2 = [&] (int u, int c) {
+      if (u == -1) {
+        return;
+      }
+      upos[curP] = u;
+      pos[u] = curP++;
+      chain[u] = c;
+      dfs2(heavy[u], c);
+      for (auto& v : adj[u]) {
+        if (v[0] != par[u] && v[0] != heavy[u]) {
+          dfs2(v[0], v[0]);
+        }
+      }
+    };
+    dfs(0);
+    dfs2(0, 0);
+  }
+
+  T merge (T a, T b) {
+    return max(a, b);
+  }
+
+  T ans (int u, int v) {
+    int mx = -1e9;
+    while (chain[u] != chain[v]) {
+      if (depth[chain[v]] > depth[chain[u]]) {
+        swap(u, v);
+      }
+      mx = merge(mx, query(pos[chain[u]], pos[u]).mx);
+      u = par[chain[u]];
+    }
+    if (depth[u] > depth[v]) {
+      swap(u, v);
+    }
+    return merge(mx, query(pos[u]+1, pos[v]).mx);
+  }
+
+  segtree<T> seg;
+
+  void build () {
+    vector<T> g(n);
+    for (int i = 0; i < n; ++i) {
+      g[i] = val[upos[i]];
+    }
+    seg.init(g);
+  }
+
+  auto query (int st, int en) {
+    return seg.query(st, en);
+  }
+
+  auto query (int st) {
+    return seg.query(st);
+  }
+
+  void update (int u, int v, T val) {
+    if (par[v] == u) {
+      swap(u, v);
+    }
+    seg.update(pos[u], val);  
+  }
+};
