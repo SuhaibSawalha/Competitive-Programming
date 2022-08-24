@@ -1,0 +1,71 @@
+struct Centroid {
+
+  vector<vector<int>> adj, tree;
+  vector<int> subsize;
+  vector<bool> is_cent;
+  int n, nodes;
+
+  Centroid (vector<vector<int>>& _adj): adj(_adj), n(_adj.size()), 
+  subsize(_adj.size()), tree(_adj.size()), is_cent(_adj.size()){}
+
+  void precalc (int u, int p = -1) {
+    subsize[u] = 1;
+    ++nodes;
+    for (int v : adj[u]) {
+      if (v ^ p && !is_cent[v]) {
+        precalc(v, u);
+        subsize[u] += subsize[v];
+      }
+    }
+  }
+
+  vector<int> centroids () {
+    precalc(0);
+    vector<int> cents;
+    function<void(int, int)> dfs = [&] (int u, int p) {
+      bool is = n - subsize[u] <= n / 2;
+      for (int v : adj[u]) {
+        if (v ^ p) {
+          dfs(v, u);
+          is &= subsize[v] <= n / 2;
+        }
+      }
+      if (is) {
+        cents.push_back(u);
+      }
+    };
+    dfs(0, -1);
+    return cents;
+  } 
+
+  int centroid (int u, int p) {
+    for (int v : adj[u]) {
+      if (!is_cent[v] && v ^ p) {
+        if (subsize[v] > nodes / 2) {
+          return centroid(v, u);
+        }
+      }
+    }
+    return u;
+  }
+
+  int centroid (int u){
+    nodes = 0;
+    precalc(u);
+    int cent = centroid(u, -1);
+    is_cent[cent] = true;
+    return cent;    
+  }
+
+  int decompose (int u = 0) {
+    int cent_tree = centroid(u);
+    for (int v : adj[cent_tree]) {
+      if (!is_cent[v]) {
+        int cent_subtree = decompose(v);
+        tree[cent_tree].push_back(cent_subtree);
+        tree[cent_subtree].push_back(cent_tree);
+      }
+    }
+    return cent_tree;
+  }
+};
