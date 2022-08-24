@@ -1,0 +1,71 @@
+template <int alpha = 128, typename T = string> 
+struct suffix_array {
+  T s;
+  vector<int> sa, start, newsa, rank, newrank, lcp;
+  int n;
+ 
+  suffix_array (T& _s): s(_s), n(_s.size()), sa(_s.size() + 1),
+    rank(_s.size() + 1), newrank(_s.size() + 1), newsa(max(alpha, (int)_s.size() + 1)),
+    lcp(_s.size() + 1), start(_s.size() + 1) {
+    #define head newsa
+    #define next newrank
+    for (int i = 0; i < alpha; ++i) {
+      head[i] = -1;
+    }
+    for (int i = 0; i <= n; ++i) {
+      sa[i] = i;
+      next[i] = head[s[i]];
+      head[s[i]] = i;
+    }
+    int p = 0, b = -1;
+    for (int i = 0; i < alpha; ++i) {
+      if (head[i] == -1) {
+        continue;
+      }
+      start[++b] = p;
+      for (int j = head[i]; ~j; j = next[j]) {
+        rank[j] = b;
+        sa[p++] = j;
+      }
+    }
+    next[0] = 0;
+    head[0] = sa[0];
+    int len = 1;
+    do {
+      for (int i = 0; i <= n; ++i) {
+        int j = sa[i] - len;
+        if (j >= 0) {
+          newsa[start[rank[j]]++] = j;
+        }
+      }
+      for (int i = 1; i <= n; ++i) {
+        sa[i] = newsa[i];
+        int a = sa[i - 1], b = sa[i];
+        bool cmp = rank[a] < rank[b] || rank[a] == rank[b] && rank[a + len] < rank[b + len];
+        newrank[i] = newrank[i - 1] + cmp;
+        if (cmp) {
+          start[newrank[i]] = i;
+        } 
+      }
+      for (int i = 0; i <= n; ++i) {
+        rank[sa[i]] = newrank[i];
+      }
+      len <<= 1;
+    } while (newrank[n] != n);
+  }
+ 
+ 
+  void build_lcp () {
+    int cnt = 0;
+    for (int i = 0; i < n; ++i) {
+      int j = sa[rank[i] - 1];
+      while (max(i, j) + cnt < n && s[i + cnt] == s[j + cnt]) {
+        ++cnt;
+      }
+      lcp[rank[i]] = cnt;
+      if (cnt) {
+        --cnt;
+      }
+    }
+  }
+};
