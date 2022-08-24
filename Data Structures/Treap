@@ -1,0 +1,263 @@
+template <typename T>
+class Treap {
+  
+  private:
+ 
+    enum DIR {L, R};
+    struct node {
+      T val;
+      int freq;
+      int size;
+      int p;
+      node* child[2];
+ 
+      node(T v, int t) {
+        val = v;
+        child[L] = nullptr;
+        child[R] = nullptr;
+        p = rand();
+        freq = t;
+        push_up();
+      }
+      void push_up () {
+        size = freq;
+        for (int dir = 0; dir < 2; ++dir) {
+          if (child[dir]) {
+            size += child[dir]->size;
+          }
+        }
+      }
+    };
+    node* head = nullptr;
+ 
+    void push_up (node*& root) {
+      if (root) {
+        root-> push_up();
+      }
+    }
+ 
+    // lf = < val
+    // rt = >= val
+    void split (node* root, T& val, node*& lf, node*& rt) {
+      if (root == nullptr) {
+        lf = rt = nullptr;
+        return;
+      }
+      if (val < root-> val) {
+        split(root-> child[L], val, lf, root-> child[L]);
+        rt = root;
+      }
+      else {
+        split(root-> child[R], val, root-> child[R], rt);
+        lf = root;
+      }    
+      push_up(root);
+    }
+ 
+    void merge (node*& root, node* lf, node* rt) {
+      if (lf == nullptr) {
+        root = rt;
+      }
+      else if (rt == nullptr) {
+        root = lf;
+      }
+      else if (lf-> p > rt-> p) {
+        merge(lf-> child[R], lf-> child[R], rt);
+        root = lf;
+      }
+      else {
+        merge(rt-> child[L], lf, rt-> child[L]);
+        root = rt;
+      }
+      push_up(root);
+    }
+ 
+    void insert (node*& root, node* node) {
+      if (root == nullptr) {
+        root = node;
+        return;
+      }
+      if (node-> p > root-> p) {
+        split(root, node-> val, node-> child[L], node-> child[R]);
+        root = node;
+      }
+      else if (node-> val < root-> val) {
+        insert(root-> child[L], node);
+      }
+      else {
+        insert(root-> child[R], node);
+      }
+      push_up(root);
+    }
+ 
+    void insert (node*& root, T& val, int& freq) {
+      if (!increase(root, val, freq)) {
+        insert(root, new node(val, freq));
+      }
+    } 
+ 
+    void erase (node*& root, T& val, int& freq) {
+      if (root == nullptr) {
+        return;
+      }
+      if (val < root-> val) {
+        erase(root-> child[L], val, freq);
+      }
+      else if (val > root-> val){
+        erase(root-> child[R], val, freq);
+      }
+      else {
+        if (root-> freq > freq) {
+          root->freq -= freq;
+        }
+        else {
+          node* temp;
+          merge(temp, root-> child[L], root-> child[R]);
+          delete root;
+          root = temp;
+        }
+      }
+      push_up(root);
+    } 
+ 
+    int count (node*& root, T& val) {
+      if (root == nullptr) {
+        return 0;
+      }
+      if (root-> val == val) {
+        return root-> freq;
+      }
+      if (val < root-> val) {
+        return count(root-> child[L], val);
+      }
+      return count(root-> child[R], val);
+    } 
+ 
+    bool increase (node*& root, T& val, int& freq) {
+      if (root == nullptr) {
+        return 0;
+      }
+      if (root-> val == val) {
+        root-> freq += freq;
+        push_up(root);
+        return true;
+      }
+      bool res = 0;
+      if (val < root-> val) {
+        res = increase(root-> child[L], val, freq);
+      }
+      else {
+        res = increase(root-> child[R], val, freq); 
+      }
+      push_up(root);
+      return res;
+    }
+   
+    void dbg (node* root, int depth) {
+      if (root == nullptr) {
+        return;
+      }
+      dbg(root-> child[L], depth + 1);
+      cout << string(depth * 5,' ') << root-> val << "," << root-> p << "\n";
+      dbg(root->child[R], depth + 1);
+    } 
+ 
+    int lower_bound (node*& root, T& val) {
+      if (root == nullptr) {
+        return 0;
+      }
+      int Lsize = size(root-> child[L]);
+      if (root-> val == val) {
+        return root-> freq + Lsize;
+      }
+      if (val < root->val) {
+        return lower_bound(root-> child[L], val);
+      }
+      return lower_bound(root-> child[R], val) + Lsize + root-> freq;
+    } 
+ 
+    int kth (node*& root, int& val) {
+      int Lsize = size(root-> child[L]);
+      if (val < Lsize) {
+        return kth(root-> child[L], val);
+      }
+      val -= Lsize;
+      if (val < root-> freq) {
+        return root-> val;
+      }
+      val -= root-> freq;
+      return kth(root-> child[R], val);
+    } 
+
+    int size (node*& root) {
+      return root ? root-> size : 0;
+    }
+ 
+    void clear (node*& root) {
+      if (root == nullptr) return;
+      clear(root-> child[L]);
+      clear(root-> child[R]);
+      delete root;
+    } 
+ 
+  public:
+ 
+    void insert (T val, int freq = 1) {
+      insert(head, val, freq);
+    }
+ 
+    void erase (T val, int freq = 1) {
+      erase(head, val, freq);
+    }
+   
+    int count (T val) {
+      return count(head, val);
+    }
+ 
+    void dbg () {
+      dbg(head, 0);
+    }
+   
+    vector<T> print() {
+      vector<T> ans;
+      function<void(node*&)> print2 = [&] (node*& root) {
+        if (root == nullptr) {
+          return;
+        }
+        print2(root-> child[L]);
+        int times = root-> freq;
+        T val = root-> val;
+        while (times--) {
+          ans.push_back(val);
+        }
+        print2(root-> child[R]);
+      };
+      print2(head);
+      return ans;
+    }
+   
+    int operator < (T val) {
+      return lower_bound(head, --val);
+    }
+    int operator <= (T val) {
+      return lower_bound(head, val);
+    }
+    int operator > (T val) {
+      return size() - lower_bound(head, val);
+    }
+    int operator >= (T val){
+      return size() - lower_bound(head, --val);
+    }
+    int operator [] (int val) {
+      return kth(head, val);
+    }
+   
+    int size () {
+      return size(head);
+    }
+ 
+    void clear () {
+      clear(head);
+      head = nullptr;
+    }
+};
