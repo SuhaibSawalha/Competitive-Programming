@@ -1,0 +1,28 @@
+int Diameter (vector<vector<int>> &adj) {
+  int S = adj.size();
+  function <pair<int,int>(int)> bfs = [&] (int src) {
+    vector <bool> visited(S, false);
+    queue <int> q;
+    q.push(src);
+    visited[src] = true;
+    int cur = 0 , u;
+    while (!q.empty()) {
+      int siz = q.size();
+      while (siz--) {
+        u = q.front();
+        q.pop();
+        for (int v : adj[u]) {
+          if (!visited[v]) {
+            q.push(v);
+            visited[v] = true;
+          }
+        }
+      }
+      ++cur;
+    }
+    return make_pair(u, cur - 1);
+  };
+  pair<int,int> p = bfs(0);
+  pair<int,int> p2 = bfs(p.first);
+  return p2.second;
+}
