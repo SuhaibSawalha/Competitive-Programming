@@ -1,0 +1,59 @@
+struct MO {
+  int n, BLOCK, s = 1, e = 0, t = 0;
+  vector<int> a;
+  MO (int _n): a(_n), n(_n), BLOCK(pow(n, 2./3)) {}
+  MO (vector<int> &_a): a(_a), n(_a.size()), BLOCK(pow(n, 2./3)) {}
+
+  struct query {
+    int l, r, id, B, t;
+    array<int, 3> P () {
+      return {l / B, (l / B) & 1 ? -r / B : r / B, (r / B) & 1 ? -t : t};
+    }
+    bool operator< (query &q) {
+      return P() < q.P();
+    }
+  };
+  vector<query> qs;
+  vector<array<int, 2>> us;
+
+  void query (int l, int r) {
+    qs.push_back({l, r, (int)qs.size(), BLOCK, (int)us.size()});
+  }
+
+  void update (int i, int v) {
+    us.push_back({i, v});
+  }
+
+  long long res = 0;
+  void add (int x) {
+    res += x;
+  }
+
+  void rem (int x) {
+    res -= x;
+  }
+
+  void chg (int i, int &v) {
+    if (s <= i && i <= e) {
+      add(v);
+      rem(a[i]);
+    }
+    swap(a[i], v);
+  }
+
+  vector<long long> solve () {
+    sort(qs.begin(), qs.end());
+    int q = qs.size();
+    vector<long long> ans(q);
+    for (int i = 0; i < q; ++i) {
+      while (t < qs[i].t) chg(us[t][0], us[t][1]), ++t;
+      while (t > qs[i].t) --t, chg(us[t][0], us[t][1]);
+      while (e < qs[i].r) add(a[++e]);
+      while (s > qs[i].l) add(a[--s]);
+      while (s < qs[i].l) rem(a[s++]);
+      while (e > qs[i].r) rem(a[e--]);
+      ans[qs[i].id] = res;
+    }
+    return ans;
+  }
+};
