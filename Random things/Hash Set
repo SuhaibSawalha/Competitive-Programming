@@ -1,3 +1,6 @@
+#include <ext/pb_ds/assoc_container.hpp>
+using namespace __gnu_pbds;
+
 auto random_address = [] { char *p = new char; delete p; return uint64_t(p); };
 
 struct safe_hash {
@@ -35,4 +38,4 @@ struct safe_array_hash {
     return hash_obj(hash_key);
   }
 };
-template <class T> using hash_set = gp_hash_table<T, null_type, safe_array_hash>;
+template <class T> using hash_set = gp_hash_table<T, null_type, safe
