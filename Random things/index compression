@@ -1,0 +1,8 @@
+namespace index_compression {
+  vector<int> ic;
+  #define iv(a) (lower_bound(ic.begin(), ic.end(), a) - ic.begin())
+  void init_ic () {
+    sort(ic.begin(), ic.end());
+    ic.resize(unique(ic.begin(), ic.end()) - ic.begin());
+  }
+}; using namespace index_compression;
