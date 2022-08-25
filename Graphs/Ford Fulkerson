@@ -1,0 +1,45 @@
+template<typename T> 
+struct MaxFlow {
+
+  vector<vector<pair<int, T>>> adj;
+  vector<T> cap;
+  vector<int> visited;
+  int vid = 0, cur = 0, src, snk;
+  T MAX;
+
+  MaxFlow (int n, int m): adj(n), cap(2*m), visited(n), MAX(sizeof(T)==4?INT_MAX:LLONG_MAX) {}
+
+  void add (int u, int v, T c, T rc = 0) {
+    cap[cur] = c, adj[u].push_back({v, cur++});
+    cap[cur] = rc, adj[v].push_back({u, cur++});
+  }
+
+  T dfs (int u, T fl) {
+    if (visited[u] == vid || !fl) {
+      return 0;
+    }
+    if (u == snk) {
+      return fl;
+    }
+    visited[u] = vid;
+    for (auto& v : adj[u]) {
+      T f = dfs(v.first, min(fl, cap[v.second]));
+      if (f) {
+        cap[v.second] -= f;
+        cap[v.second^1] += f;
+        return f;
+      }
+    }
+    return 0;
+  }
+
+  T ans (int st, int en) {
+    src = st, snk = en;
+    T mx = 0, flow;
+    do {
+      ++vid;
+      mx += flow = dfs(src, MAX);
+    } while (flow);
+    return mx;
+  }
+};
