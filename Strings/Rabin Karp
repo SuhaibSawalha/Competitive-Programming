@@ -1,0 +1,87 @@
+mt19937 rng(chrono::steady_clock::now().time_since_epoch().count());
+int rand(int l,int r){return uniform_int_distribution<int>(l,r)(rng);}
+
+const int N = 5e2 + 5, md = 1e9 + 7;
+const int base = 29 ;
+ 
+int mod[2];
+int p[N][2] = {{1, 1}};
+int inv[N][2] = {{1, 1}};
+bool is_prime(int x){
+  for (int i = 2; i * i <= x; ++i) {
+    if (x % i == 0) {
+      return 0;
+    }
+  }
+  return 1;
+}
+int nxt_prime(int x){
+  for (int i = x; 1; ++i) {
+    if (is_prime(i)) {
+      return i;
+    }
+  }
+}
+void get_mods(){
+  mod[0] = nxt_prime(rand(9e8, 1e9+9));
+  mod[1] = nxt_prime(rand(9e8, 1e9+9));
+  while(mod[1] == mod[0]) mod[1] = nxt_prime(rand(9e8, 1e9+9));
+}
+int pwr (int b, int md){
+  int p = md - 2;
+  int res = 1 ;
+  while (p) {
+    if (p&1) res = 1ll * res * b % md;
+    b = 1ll * b * b % md;
+    p >>= 1 ;
+  }
+  return res ;
+}
+void init(){
+  get_mods();
+  for(int i = 1 ; i < N; ++i) for(int j = 0; j < 2; ++j){
+    p[i][j] = 1ll * p[i - 1][j] * base % mod[j] ;
+    inv[i][j] = pwr(p[i][j], mod[j]) ;
+  }
+}
+struct Rabin_Karp {
+  int val[2] ,len ;
+  deque<int> cur ;
+  Rabin_Karp(){
+    memset(val, 0, sizeof val);
+    cur.clear();
+    len = 0 ;
+  }
+  void push_back(int x){
+    for(int i = 0; i < 2; ++i) val[i] = (1ll * val[i] * base % mod[i] + x) % mod[i];
+    cur.push_back(x);
+    ++len ;
+  }
+  void push_front(int x){
+    for(int i = 0; i < 2; ++i) val[i] = (1ll * x * p[len][i] % mod[i] + val[i]) % mod[i] ;
+    cur.push_front(x);
+    ++len ;
+  }
+  void pop_back(){
+    for(int i = 0; i < 2; ++i){
+      val[i] = ((val[i] - cur.back()) % mod[i] + mod[i]) % mod[i] ;
+      val[i] = 1ll * val[i] * inv[1][i] % mod[i];
+    }
+    cur.pop_back();
+    --len ;
+  }
+  void pop_front(){
+    --len ;
+    for(int i = 0; i < 2; ++i){
+      int v = 1ll * cur.front() * p[len][i] % mod[i] ;
+      val[i] = ((val[i] - v) % mod[i] + mod[i]) % mod[i] ;
+    }
+    cur.pop_front();
+  }
+  int size(){
+    return len ;
+  }
+  bool operator ==(const Rabin_Karp &rhs){
+    return (rhs.len==len) && (rhs.val[0]==val[0]) && (rhs.val[1]==val[1]) ;
+  }
+};
