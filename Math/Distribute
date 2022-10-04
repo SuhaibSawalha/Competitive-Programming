@@ -1,0 +1,3 @@
+int Distribute (int n, int k) {
+  return nCk(n + k - 1, n);
+}
