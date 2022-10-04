@@ -1,0 +1,3 @@
+int Catalan (int n) {
+  return nCk(2 * n, n) / (n + 1);
+}
