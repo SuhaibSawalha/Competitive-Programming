@@ -1,0 +1,99 @@
+namespace STACK {
+  vector<int> Small_Left (vector<int> &a) {
+    vector<int> L(a.size());
+    stack<int> st;
+    for (int i = 0; i < a.size(); ++i) {
+      while (st.size() && a[st.top()] >= a[i]) {
+        st.pop();
+      }
+      L[i] = st.size() ? st.top() : i;
+      st.push(i);
+    }
+    return L;
+  }
+  vector<int> Small_Equal_Left (vector<int> &a) {
+    vector<int> L(a.size());
+    stack<int> st;
+    for (int i = 0; i < a.size(); ++i) {
+      while (st.size() && a[st.top()] > a[i]) {
+        st.pop();
+      }
+      L[i] = st.size() ? st.top() : i;
+      st.push(i);
+    }
+    return L;
+  }
+  vector<int> Small_Right (vector<int> &a) {
+    vector<int> R(a.size());
+    stack<int> st;
+    for (int i = a.size() - 1; ~i; --i) {
+      while (st.size() && a[st.top()] >= a[i]) {
+        st.pop();
+      }
+      R[i] = st.size() ? st.top() : i;
+      st.push(i);
+    }
+    return R;
+  }
+  vector<int> Small_Equal_Right (vector<int> &a) {
+    vector<int> R(a.size());
+    stack<int> st;
+    for (int i = a.size() - 1; ~i; --i) {
+      while (st.size() && a[st.top()] > a[i]) {
+        st.pop();
+      }
+      R[i] = st.size() ? st.top() : i;
+      st.push(i);
+    }
+    return R;
+  }
+  vector<int> Large_Left (vector<int> &a) {
+    vector<int> L(a.size());
+    stack<int> st;
+    for (int i = 0; i < a.size(); ++i) {
+      while (st.size() && a[st.top()] <= a[i]) {
+        st.pop();
+      }
+      L[i] = st.size() ? st.top() : i;
+      st.push(i);
+    }
+    return L;
+  }
+  vector<int> Large_Equal_Left (vector<int> &a) {
+    vector<int> L(a.size());
+    stack<int> st;
+    for (int i = 0; i < a.size(); ++i) {
+      while (st.size() && a[st.top()] < a[i]) {
+        st.pop();
+      }
+      L[i] = st.size() ? st.top() : i;
+      st.push(i);
+    }
+    return L;
+  }
+  vector<int> Large_Right (vector<int> &a) {
+    vector<int> R(a.size());
+    stack<int> st;
+    for (int i = a.size() - 1; ~i; --i) {
+      while (st.size() && a[st.top()] <= a[i]) {
+        st.pop();
+      }
+      R[i] = st.size() ? st.top() : i;
+      st.push(i);
+    }
+    return R;
+  }
+  vector<int> Large_Equal_Right (vector<int> &a) {
+    vector<int> R(a.size());
+    stack<int> st;
+    for (int i = a.size() - 1; ~i; --i) {
+      while (st.size() && a[st.top()] < a[i]) {
+        st.pop();
+      }
+      R[i] = st.size() ? st.top() : i;
+      st.push(i);
+    }
+    return R;
+  }
+};
+using namespace STACK;
