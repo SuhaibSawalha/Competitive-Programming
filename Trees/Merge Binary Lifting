@@ -1,0 +1,89 @@
+struct MergeBinaryLifting {
+ 
+  int n;
+  int exp = 20;
+  vector <int> depth;
+  vector <vector<int>> T;
+  vector <vector<int>> H;
+
+  MergeBinaryLifting (vector<vector<array<int,2>>>& adj): n(adj.size()){
+    depth = vector<int>(n);
+    T = vector<vector<int>>(n,vector<int>(exp));
+    H = vector<vector<int>>(n,vector<int>(exp));
+    dfs(adj);
+    for (int i = 1 ; i < exp ; ++i){
+      for (int u = 0 ; u < n ; ++u){
+        if (~T[u][i-1]){
+          T[u][i] = T[T[u][i-1]][i-1];
+          H[u][i] = Merge(H[u][i-1] , H[T[u][i-1]][i-1]);
+        }
+      }
+    }
+  }
+
+  void dfs (vector <vector<array<int,2>>>& adj , int u = 0 , int p = -1 , int d = 0){
+    T[u][0] = p;
+    depth[u] = d++;
+    for (auto& v : adj[u]){
+      if (v[0] ^ p){
+        H[v[0]][0] = v[1];
+        dfs(adj,v[0],u,d);
+      }
+    }
+  }
+
+  int LCA (int u , int v){
+    if (depth[u] < depth[v])
+      swap(u,v);
+    int dif = depth[u] - depth[v];
+    for (int i = 0 ; i < exp ; ++i){
+      if (dif & (1 << i)){
+        u = T[u][i];
+      }
+    }       
+    if (u == v) return u;
+    for (int i = exp - 1 ; ~i ; --i){
+      if (T[u][i] ^ T[v][i]){
+        u = T[u][i] , v = T[v][i];
+      }
+    }
+    return T[u][0];
+  }
+
+  int distance (int u , int v){
+    return depth[u] + depth[v] - 2 * depth[LCA(u,v)];
+  }
+
+  int GoUp (int u , int steps){
+    for (int i = 0 ; i < exp ; ++i){
+      if (steps & (1 << i)){
+        u = T[u][i];
+      }
+    }
+    return u;
+  }
+
+  int Merge (int u , int v){
+    return min(u , v);
+  }
+
+  int get (int u , int v){
+    if (depth[u] < depth[v])
+      swap(u,v);
+    int dif = depth[u] - depth[v] , ans = 2e9;
+    for (int i = 0 ; i < exp ; ++i){
+      if (dif & (1 << i)){
+        ans = Merge(ans , H[u][i]);
+        u = T[u][i];
+      }
+    }       
+    if (u == v) return ans;
+    for (int i = exp - 1 ; ~i ; --i){
+      if (T[u][i] ^ T[v][i]){
+        ans = Merge(ans , Merge(H[u][i] , H[v][i]));
+        u = T[u][i] , v = T[v][i];
+      }
+    }
+    return Merge(ans , Merge(H[u][0] , H[v][0]));
+  }
+};
