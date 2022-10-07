@@ -1,0 +1,23 @@
+  for (int i = 0; i < n; ++i) {
+  	char c, c2;
+  	int u, v;
+  	cin >> c >> u >> c2 >> v, --u, --v;
+  	u *= 2;
+  	v *= 2;
+  	u += c == '-';
+  	v += c2 == '-';
+  	adj[u ^ 1].push_back(v);
+  	adj[v ^ 1].push_back(u);
+  }
+  tarjan(adj);
+  string s;
+  for (int i = 0; i < m; ++i) {
+  	if (cmp[2 * i] == cmp[2 * i + 1]) {
+  		cout << "IMPOSSIBLE";
+  		return 0;
+  	}
+  	s += (cmp[2 * i] < cmp[2 * i + 1] ? '+' : '-');
+  }
+  for (char c : s) {
+  	cout << c << " ";
+  }
