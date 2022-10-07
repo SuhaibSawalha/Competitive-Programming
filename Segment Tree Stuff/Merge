@@ -1,1 +1,0 @@
-merge(seg[2 * idx].begin(), seg[2 * idx].end(), seg[2 * idx + 1].begin(), seg[2 * idx + 1].end(), back_inserter(seg[idx]));
