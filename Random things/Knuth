@@ -15,3 +15,23 @@
   	}
   }
   cout << dp[0][n-1];
+
+---------------------------
+
+  for (int i = 0; i < n; ++i) {
+  	best[i][1] = i;
+  }
+  for (int len = 2; len <= n; ++len) {
+  	for (int st = 0, en = len - 1; st + len - 1 < n; ++st, ++en) {
+  		int s = best[st][len-1], e = best[st+1][len-1];
+  		long long &ret = dp[st][en] = LLONG_MAX, sum = freq[en] - (st ? freq[st-1] : 0), c;
+  		for (int i = s; i <= e; ++i) {
+  			c = sum + dp[st][i] + dp[i+1][en];
+  			if (c < ret) {
+  				ret = c;
+  				best[st][len] = i;
+  			}
+  		}
+  	}
+  }
+  cout << dp[0][n-1];
