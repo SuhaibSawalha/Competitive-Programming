@@ -1,0 +1,71 @@
+#include <bits/stdc++.h>
+using namespace std;
+    
+vector<vector<int>> adj;
+vector<int> eu, ev, ans, visited;
+int n, m;
+ 
+void dfs (int u = 0) {
+  while (adj[u].size()) {
+    int e = adj[u].back();
+    adj[u].pop_back();
+    if (!visited[e]) {
+      visited[e] = 1;
+      dfs(eu[e]^ev[e]^u);
+      ans.push_back(u);
+    }
+  }
+}
+ 
+int main (){
+ 
+  #ifndef ONLINE_JUDGE
+    freopen("SuhaibSawalha1","r",stdin);
+  #endif
+ 
+  ios_base::sync_with_stdio(false);
+  cin.tie(NULL); cout.tie(NULL);
+ 
+  cin >> n >> m;
+  adj.resize(n);
+  eu.resize(m);
+  ev.resize(m);
+  visited.resize(m);
+  vector<int> in(n), out(n);
+  for (int i = 0; i < m; ++i) {
+    cin >> eu[i] >> ev[i], --eu[i], --ev[i];
+    adj[eu[i]].push_back(i);    
+    ++in[ev[i]];
+    ++out[eu[i]];
+    // adj[ev[i]].push_back(i);    
+  }
+  for (int i = 0; i < n; ++i) {
+    if (i == 0) {
+      if (in[i] + 1 == out[i]) {
+        continue;
+      }
+    }
+    else if (i == n-1) {
+      if (out[i] + 1 == in[i]) {
+        continue;
+      }
+    }
+    else if (in[i] == out[i]) {
+      continue;
+    }
+    cout << "IMPOSSIBLE";
+    return 0;
+  }
+  dfs();
+  if (ans.size()^m) {
+    cout << "IMPOSSIBLE";
+    return 0;
+  }
+  reverse(ans.begin(), ans.end());
+  for (int i : ans) {
+    cout << i+1 << " ";
+  }
+  cout << n;
+ 
+  return 0;
+}
