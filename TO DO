@@ -1,3 +1,44 @@
 Prim
 kosaraju
 Boruvka
+
+
+#include <bits/stdc++.h>
+using namespace std;
+    
+int main (){
+
+  #ifndef ONLINE_JUDGE
+    freopen("Satoru","r",stdin);
+  #endif
+
+  ios_base::sync_with_stdio(false);
+  cin.tie(NULL);
+
+  int n, m;
+  while (cin >> n >> m) {
+    int a[m];
+    long long dp[m][m] = {};
+    int best[m][m] = {};
+    for (int i = 0; i < m; ++i) {
+      best[i][i] = i;
+      cin >> a[i];
+    }
+    for (int i = m - 2; ~i; --i) {
+      for (int j = i + 1; j < m; ++j) {
+        int s = best[i][j - 1], e = min(j - 1, best[i + 1][j]);
+        long long &ret = dp[i][j] = LLONG_MAX, c;
+        for (int k = s; k <= e; ++k) {
+          c = a[j] - a[i] + 1 + dp[i][k] + dp[k + 1][j];
+          if (c < ret) {
+            ret = c;
+            best[i][j] = k;
+          }
+        }
+      }
+    }
+    cout << dp[0][m - 1] + n << "\n";
+  }
+
+  return 0;
+}
