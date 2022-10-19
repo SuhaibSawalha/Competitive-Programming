@@ -1,0 +1,24 @@
+vector<int> bfs0_1 (vector<vector<array<int, 2>>> &adj, int src) {
+	vector<int> d(adj.size(), (int)1e9);
+	d[src] = 0;
+	deque<int> q;
+	q.push_front(src);
+	while (!q.empty()) {
+    int u = q.front();
+    q.pop_front();
+    for (auto &edge : adj[u]) {
+      int v = edge[0];
+      int w = edge[1];
+      if (d[u] + w < d[v]) {
+        d[v] = d[u] + w;
+        if (w == 1) {
+          q.push_back(v);
+        }
+        else {
+          q.push_front(v);
+        }
+      }
+    }
+	}
+	return d;
+}
