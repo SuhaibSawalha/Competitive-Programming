@@ -1,0 +1,44 @@
+struct node;
+extern node *empty_;
+struct node {
+  int freq;
+  node *l, *r;
+  node () {
+    freq = 0;
+    l = r = this;
+  }
+  node (int x) {
+    freq = x;
+    l = r = empty_;
+  }
+  node (node *lf, node *rt) {
+    freq = lf-> freq + rt-> freq;
+    l = lf;
+    r = rt;
+  }
+};
+node *empty_ = new node();
+ 
+#define mid L + (R - L) / 2
+node *insert (node *root, int x, int L = -1e9, int R = 1e9) {
+  if (L > x || R < x) {
+    return root;
+  }
+  if (L == R) {
+    return new node(root-> freq + 1);
+  }
+  node *l = insert(root-> l, x, L, mid);
+  node *r = insert(root-> r, x, mid + 1, R);
+  return new node(l, r);
+}
+ 
+int query (node *st, node *en, int k, int L = -1e9, int R = 1e9) {
+  if (L == R) {
+    return L;
+  }
+  int left = en-> l-> freq - st-> l-> freq;
+  if (k <= left) {
+    return query(st-> l, en-> l, k, L, mid);
+  }
+  return query(st-> r, en-> r, k - left, mid + 1, R);
+}
