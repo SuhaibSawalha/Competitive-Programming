@@ -1,0 +1,49 @@
+struct node;
+extern node *empty_;
+struct node {
+  int freq;
+  node *l, *r;
+  node () {
+    freq = 0;
+    l = r = this;
+  }
+  node (int x) {
+    freq = x;
+    l = r = empty_;
+  }
+  node (node *lf, node *rt) {
+    freq = lf-> freq + rt-> freq;
+    l = lf;
+    r = rt;
+  }
+};
+node *empty_ = new node();
+ 
+#define mid L + (R * 1LL - L) / 2
+node *insert (node *root, int x, int L = 1, int R = 1e5) {
+  if (L > x || R < x) {
+    return root;
+  }
+  if (L == R) {
+    return new node(root-> freq + 1);
+  }
+  node *l = insert(root-> l, x, L, mid);
+  node *r = insert(root-> r, x, mid + 1, R);
+  return new node(l, r);
+}
+ 
+vector<int> ans;
+void query (node *u, node *v, node *lca, node *lcap, int k, int L = 1, int R = 1e5) {
+  if (L == R) {
+  	ans.push_back(L);
+    return;
+  }
+  int left = v-> l-> freq + u-> l-> freq - lca-> l-> freq - lcap-> l-> freq;
+  int right = v-> r-> freq + u-> r-> freq - lca-> r-> freq - lcap-> r-> freq;
+  if (left) {
+  	query(u-> l, v-> l, lca->l, lcap->l, k, L, mid);
+  }
+  if (k > left && right) {
+	  query(u-> r, v-> r, lca-> r, lcap-> r, k - left, mid + 1, R);
+  }
+}
