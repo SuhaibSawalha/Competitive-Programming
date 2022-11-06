@@ -162,7 +162,7 @@ class Treap {
       dbg(root->child[R], depth + 1);
     } 
  
-    int lower_bound (node*& root, T& val) {
+    int smaller (node*& root, T& val) {
       if (root == nullptr) {
         return 0;
       }
@@ -171,12 +171,12 @@ class Treap {
         return root-> freq + Lsize;
       }
       if (val < root->val) {
-        return lower_bound(root-> child[L], val);
+        return smaller(root-> child[L], val);
       }
-      return lower_bound(root-> child[R], val) + Lsize + root-> freq;
+      return smaller(root-> child[R], val) + Lsize + root-> freq;
     } 
  
-    int kth (node*& root, int& val) {
+    T kth (node*& root, int val) {
       int Lsize = size(root-> child[L]);
       if (val < Lsize) {
         return kth(root-> child[L], val);
@@ -188,6 +188,20 @@ class Treap {
       val -= root-> freq;
       return kth(root-> child[R], val);
     } 
+
+    T min (node*& root) {
+    	if (root-> child[L] == nullptr) {
+    		return root-> val;
+    	}
+    	return min(root-> child[L]);
+    }
+
+    T max (node*& root) {
+    	if (root-> child[R] == nullptr) {
+    		return root-> val;
+    	}
+    	return max(root-> child[R]);
+    }
 
     int size (node*& root) {
       return root ? root-> size : 0;
@@ -237,21 +251,41 @@ class Treap {
     }
    
     int operator < (T val) {
-      return lower_bound(head, --val);
+      return smaller(head, --val);
     }
+
     int operator <= (T val) {
-      return lower_bound(head, val);
+      return smaller(head, val);
     }
+
     int operator > (T val) {
-      return size() - lower_bound(head, val);
+      return size() - smaller(head, val);
     }
+
     int operator >= (T val){
-      return size() - lower_bound(head, --val);
+      return size() - smaller(head, --val);
     }
-    int operator [] (int val) {
+
+    T operator [] (int val) {
       return kth(head, val);
     }
+
+    T min () {
+    	return min(head);
+    }
    
+    T max () {
+    	return max(head);
+    }
+
+    T lower_bound (T val) {
+    	return kth(head, smaller(head, --val));
+    }
+
+    T upper_bound (T val) {
+    	return kth(head, smaller(head, val));
+    }
+
     int size () {
       return size(head);
     }
