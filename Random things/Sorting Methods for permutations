@@ -1,0 +1,44 @@
+long long choose_two_adjacent_elements_and_swap_them (vector<int> &a) { 
+  int n = a.size();
+  vector<int> p(n + 1);
+  for (int i = 0; i < n; ++i) {
+    p[a[i]] = i;
+  }
+  oset<int> os;
+  long long ans = 0;
+  for (int i = 1; i <= n; ++i) {
+    ans += p[i] - os.order_of_key(p[i]);
+    os.insert(p[i]);
+  }
+  return ans;
+}
+
+int choose_any_two_elements_and_swap_them (vector<int> &a) {
+  int n = a.size();
+  DSU dsu(n + 1);
+	for (int i = 0; i < n; ++i) {
+		dsu(a[i], i + 1);
+	}
+	set<int> p;
+	int ans = 0;
+	for (int i = 1; i <= n; ++i) {
+		if (p.insert(dsu[i]).second) {
+			ans += dsu.siz[dsu[i]] - 1;
+		}
+	}
+	return ans;
+}
+
+int choose_any_element_and_move_it_to_another_position (vector<int> &a) {
+	return a.size() - Maximum_non_decreasing_subsequence(a);
+}
+
+int choose_any_element_and_move_it_to_the_front_of_the_array (vector<int> &a) {
+	int n = a.size();
+	for (int i = n - 1; ~i; --i) {
+		if (a[i] == n) {
+			--n;
+		}
+	}
+	return n;
+}
