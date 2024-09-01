@@ -6,8 +6,9 @@ int n, m, dfst;
 void bridge (vector<vector<int>>& adj) {
 	int n = adj.size();
 	lowlink.resize(n);
-	visidx.resize(n, -1);
+	visidx.assign(n, -1);
 	dfst = 0;
+	is_bridge.clear();
 	function<void(int, int)> bridge = [&] (int u, int p) {
 		visidx[u] = lowlink[u] = dfst++;
 		for (int v : adj[u]) {
