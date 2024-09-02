@@ -1,30 +1,6 @@
-  for (int i = 0; i < n; ++i) {
-  	char c, c2;
-  	int u, v;
-  	cin >> c >> u >> c2 >> v, --u, --v;
-  	u *= 2;
-  	v *= 2;
-  	u += c == '-';
-  	v += c2 == '-';
-  	adj[u ^ 1].push_back(v);
-  	adj[v ^ 1].push_back(u);
-  }
-  tarjan(adj);
-  string s;
-  for (int i = 0; i < m; ++i) {
-  	if (cmp[2 * i] == cmp[2 * i + 1]) {
-  		cout << "IMPOSSIBLE";
-  		return 0;
-  	}
-  	s += (cmp[2 * i] < cmp[2 * i + 1] ? '+' : '-');
-  }
-  for (char c : s) {
-  	cout << c << " ";
-  }
--------------------------------------
-
-// include u
-// don't include ~u
+#include <bits/stdc++.h>
+using namespace std;
+ 
 struct TwoSat {
   int N;
   vector<vector<int>> gr;
@@ -81,3 +57,34 @@ struct TwoSat {
     return 1;
   }
 };
+    
+int main (){
+ 
+  #ifndef ONLINE_JUDGE
+    freopen("Satoru","r",stdin);
+  #endif
+ 
+  ios_base::sync_with_stdio(false);
+  cin.tie(NULL);
+ 
+  int n, m;
+  cin >> m >> n;
+  TwoSat T(n);
+  for (int i = 0; i < m; ++i) {
+    char c, c1;
+    int u, v;
+    cin >> c >> u >> c1 >> v, --u, --v;
+    if (c == '-') u = ~u;
+    if (c1 == '-') v = ~v;
+    T.either(u, v);
+  }
+  if (!T.solve()) {
+    cout << "IMPOSSIBLE";
+  }
+  else {
+    for (int i = 0; i < n; ++i) {
+      cout << (T.values[i] ? '+' : '-') << ' ';
+    }
+  }
+ 
+  return 0;
