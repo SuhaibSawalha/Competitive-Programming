@@ -1,8 +1,7 @@
-vector<int> fail;
 template <class T = string> 
-void kmp (T &s){
+vector<int> kmp (T &s){
   int n = s.size();
-  fail.resize(n);
+	vector<int> fail(n);
   fail[0] = 0;
   int len = 0;
   for (int i = 1; i < n; ++i) {
@@ -12,4 +11,5 @@ void kmp (T &s){
     }
     fail[i] = len + (s[len] == s[i]);
   }
+  return fail;
 }
