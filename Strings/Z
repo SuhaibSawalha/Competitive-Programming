@@ -1,8 +1,7 @@
-vector<int> z;
 template <class T = string>
-void Z (T &s){
+vector<int> Z (T &s){
   int n = s.size();
-  z.resize(n);
+  vector<int> z(n);
   z[0] = n;
   for (int i = 1, st = 1, en = 1; i < n; ++i) {
     int pos = i - st;
@@ -18,4 +17,5 @@ void Z (T &s){
       z[i] = z[pos];
     }
   }
+  return z;
 }
