@@ -1,17 +1,17 @@
-  for (int i = 0; i < n; ++i) {
-    best[i][i] = i;
+for (int i = 0; i < n; ++i) {
+  best[i][i] = i;
+}
+for (int i = n - 2; ~i; --i) {
+  for (int j = i + 1; j < n; ++j) {
+    int s = best[i][j - 1], e = min(j - 1, best[i + 1][j]);
+    long long &ret = dp[i][j] = LLONG_MAX, sum = j - i + 1, c;
+    for (int k = s; k <= e; ++k) {
+      c = sum + dp[i][k] + dp[k + 1][j];
+      if (c < ret) {
+        ret = c;
+        best[i][j] = k;
+      }
+    }
   }
-  for (int i = n - 2; ~i; --i) {
-  	for (int j = i + 1; j < n; ++j) {
-  		int s = best[i][j - 1], e = min(j - 1, best[i + 1][j]);
-  		long long &ret = dp[i][j] = LLONG_MAX, sum = j - i + 1, c;
-  		for (int k = s; k <= e; ++k) {
-  			c = sum + dp[i][k] + dp[k + 1][j];
-  			if (c < ret) {
-  				ret = c;
-  				best[i][j] = k;
-  			}
-  		}
-  	}
-  }
-  cout << dp[0][n - 1];
+}
+cout << dp[0][n - 1];
