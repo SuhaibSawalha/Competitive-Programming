@@ -1,9 +1,9 @@
 vector<int> bfs0_1 (vector<vector<array<int, 2>>> &adj, int src) {
-	vector<int> d(adj.size(), (int)1e9);
-	d[src] = 0;
-	deque<int> q;
-	q.push_front(src);
-	while (!q.empty()) {
+  vector<int> d(adj.size(), (int)1e9);
+  d[src] = 0;
+  deque<int> q;
+  q.push_front(src);
+  while (!q.empty()) {
     int u = q.front();
     q.pop_front();
     for (auto &edge : adj[u]) {
@@ -19,6 +19,6 @@ vector<int> bfs0_1 (vector<vector<array<int, 2>>> &adj, int src) {
         }
       }
     }
-	}
-	return d;
+  }
+  return d;
 }
