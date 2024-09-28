@@ -1,5 +1,5 @@
 vector <long long> dist;
-bool BellMan (int src, vector<vector<array<int, 2>>> &adj) {
+bool BellmanFord (int src, vector<vector<array<int, 2>>> &adj) {
   int n = adj.size();
   dist.resize(n, 1e18);
   vector <bool> inQ(n);
