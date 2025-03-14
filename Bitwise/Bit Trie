@@ -1,13 +1,14 @@
+template<typename T, int N>
 struct BitTrie {
   struct node {
-    node* child[2] = {};
-    int size = 0;
+    node *child[2] = {};
+    int size = 0, unique = 0;
   };
-  node* root = new node;
+  node *root = new node;
 
-  void insert (int n) {
+  void insert(T n) {
     node *cur = root;
-    for (int bit = 62; ~bit; --bit) {
+    for (int bit = N; ~bit; --bit) {
       int index = n >> bit & 1;
       if (!cur-> child[index]) {
         cur-> child[index] = new node;
@@ -17,29 +18,68 @@ struct BitTrie {
     }
   }
 
-  void erase (int n) {
+  void erase(T n) {
     node *cur = root;
-    for (int bit = 62; ~bit; --bit) {
+    for (int bit = N; ~bit; --bit) {
       cur = cur-> child[n >> bit & 1];
       --cur-> size;
     }
   }
 
-  int operator^ (int a) {
-    int ans = 0, v = 0;
+  T maxXor(T a) {
+    T ans = 0;
     node *cur = root;
-    for (int bit = 62; ~bit; --bit) {
+    for (int bit = N; ~bit; --bit) {
       int index = a >> bit & 1;
       if (cur-> child[index ^ 1] && cur-> child[index ^ 1]-> size) {
         cur = cur-> child[index ^ 1];
         ans ^= 1LL << bit;
-      }
-      else if (cur-> child[index]-> size) {
+      } else if (cur-> child[index] && cur-> child[index]-> size) {
         cur = cur-> child[index];
-      }
-      else {
+      } else {
         return 0;
       }
+    }
+    return ans;
+  }
+
+  void insert_unique(T n, int bit, node *cur) {
+    if (bit == -1) {
+      cur-> unique = 1;
+      return;
+    }
+    int index = n >> bit & 1;
+    if (!cur-> child[index]) {
+      cur-> child[index] = new node;
+    }
+    insert_unique(n, bit - 1, cur-> child[index]);
+    ++cur-> size;
+    cur-> unique = cur-> child[index]-> unique;
+    if (cur-> child[index ^ 1]) {
+      cur-> unique += cur-> child[index ^ 1]-> unique;
+    }
+  }
+
+  void insert_unique(T n) {
+    insert_unique(n, N, root);
+  }
+
+  T mex() {
+    T ans = 0;
+    node *cur = root;
+    for (int bit = N; ~bit; --bit) {
+      if (!cur-> child[0]) {
+        return ans;
+      }
+      if (cur-> child[0]-> unique != (1 << bit)) {
+        cur = cur-> child[0];
+        continue;
+      }
+      ans ^= 1LL << bit;
+      if (!cur-> child[1]) {
+        return ans;
+      }
+      cur = cur-> child[1];
     }
     return ans;
   }
