@@ -1,9 +1,9 @@
-vector <long long> divisors (long long x) {
-  vector <long long> ans;
-  for (long long i = 1; i * i <= x; ++i) {
+vector<int64_t> divisors(int64_t x) {
+  vector<int64_t> ans;
+  for (int i = 1; int64_t(i) * i <= x; ++i) {
     if (x % i == 0) {
       ans.push_back(i);
-      if (i * i != x) {
+      if (int64_t(i) * i != x) {
         ans.push_back(x / i);
       }
     }
