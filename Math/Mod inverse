@@ -1,15 +1,14 @@
 Mint modInv (Mint a){
-  return power(a,mod-2);
+  return power(a, mod - 2);
 }
 
 vector<Mint> fact, factInv;
-
-void Inv (int N) {
+void Inv(int N) {
   fact = vector<Mint>(N + 1);
   factInv = vector<Mint>(N + 1);
   fact[0] = 1;
   for (int i = 1; i <= N; ++i) {
-    fact[i] = fact[i-1] * i;
+    fact[i] = fact[i - 1] * i;
   }
   factInv[N] = modInv(fact[N]);
   for (int i = N - 1; ~i; --i) {
