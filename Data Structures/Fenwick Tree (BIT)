@@ -20,9 +20,9 @@ struct FenwickTree {
   }
 
   // This can only be used with single point query
-  void update(int i, int j, T x) {
-    update(i, x);
-    update(j + 1, -x);
+  void update(int l, int r, T x) {
+    update(l, x);
+    update(r + 1, -x);
   }
 
   T query(int i) {
@@ -35,8 +35,8 @@ struct FenwickTree {
     return sum;
   }
 
-  T query(int st, int en) {
-    return query(en) - query(st - 1);
+  T query(int l, int r) {
+    return query(r) - query(l - 1);
   }
 
   int operator [](int v) {
