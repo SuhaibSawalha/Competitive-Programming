@@ -1,0 +1,27 @@
+template <class T> 
+struct RangeFenwickTree {
+  FenwickTree<T> fen1, fen2;
+
+  RangeFenwickTree(int n): fen1(n), fen2(n) {}
+
+  RangeFenwickTree(const vector<T> &a): fen1(a.size()), fen2(a.size()) {
+    for (int i = 0; i < (int)a.size(); ++i) {
+      update(i, i, a[i]);
+    }
+  }
+
+  void update(int l, int r, T x) {
+    fen1.update(l, x);
+    fen1.update(r + 1, -x);
+    fen2.update(l, x * (l - 1));
+    fen2.update(r + 1, -x * r);
+  }
+
+  T query(int i) {
+    return fen1.query(i) * i - fen2.query(i); 
+  }
+
+  T query(int l, int r) {
+    return query(r) - query(l - 1);
+  }
+};
