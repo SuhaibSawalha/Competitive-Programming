@@ -1,49 +1,55 @@
 template <class T> 
-struct fenwick {
+struct FenwickTree {
+  vector<T> bit;
+  int sz;
 
-  vector <T> BIT;
-  int Sz;
-
-  fenwick (int n): Sz(1 << (int)ceil(log2(n + 1))) {
-    BIT.resize(Sz);
+  FenwickTree(int n): sz(n + 1) {
+    bit.assign(sz + 1, 0);
   }
 
-  T query (int i) {
+  FenwickTree(const vector<T> &a): FenwickTree(a.size()) {
+    for (int i = 0; i < a.size(); ++i) {
+      update(i, a[i]);
+    }
+  }
+
+  T query(int i) {
     T sum = 0;
-    i = min(i, Sz - 1);
+    i = min(i, sz - 1);
     i = max(i, -1);
-    for (++i; i; i -= i & -i) {
-      sum += BIT[i];
+    for (++i; i > 0; i -= i & -i) {
+      sum += bit[i];
     }
     return sum;
   }
 
-  void update (int i, T x) {
-    for (++i; i <= Sz; i += i & -i) {
-      BIT[i] += x;
+  void update(int i, T x) {
+    for (++i; i <= sz; i += i & -i) {
+      bit[i] += x;
     }
   }
 
-  void update (int i, int j, T x) {
+  // This can only be used with single point query
+  void update(int i, int j, T x) {
     update(i, x);
     update(j + 1, -x);
   }
 
-  T query (int st, int en) {
+  T query(int st, int en) {
     return query(en) - query(st - 1);
   }
 
-  int operator [] (int v) {
-    int st = 0, Sz2 = Sz;
-    while (Sz2 /= 2) {
-      if (v >= BIT[st + Sz2]) {
-        v -= BIT[st += Sz2];
+  int operator [](int v) {
+    int st = 0, sz2 = sz;
+    while (sz2 /= 2) {
+      if (v >= bit[st + sz2]) {
+        v -= bit[st += sz2];
       }
     }
     return st;
   }
 
-  int size () {
-    return query(Sz - 1);
+  int size() {
+    return query(sz - 1);
   }
 };
