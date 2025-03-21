@@ -8,7 +8,7 @@ struct FenwickTree {
   }
 
   FenwickTree(const vector<T> &a): FenwickTree(a.size()) {
-    for (int i = 0; i < a.size(); ++i) {
+    for (int i = 0; i < (int)a.size(); ++i) {
       update(i, a[i]);
     }
   }
