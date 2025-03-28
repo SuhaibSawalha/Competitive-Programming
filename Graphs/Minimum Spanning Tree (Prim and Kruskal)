@@ -1,0 +1,53 @@
+struct MinimumSpanningTree {
+  int n;
+  vector<vector<array<int, 2>>> adj;
+
+  MinimumSpanningTree(const vector<vector<array<int, 2>>>& _adj): n(_adj.size()), adj(_adj) {}
+
+  int64_t prim() {
+    int64_t mst = 0;
+    set<array<int, 2>> st;
+    vector<bool> visited(n);
+    vector<array<int, 2>> min_e(n, {INT_MAX, 0});
+    st.insert({0, 0});
+    min_e[0] = {0, 0};
+    for (int i = 0; i < n; ++i) {
+      if (st.empty()) {
+        return -1;
+      }
+      int u = (*st.begin())[1];
+      visited[u] = true;
+      mst += (*st.begin())[0];
+      st.erase(st.begin());
+      for (const auto& e : adj[u]) {
+        if (!visited[e[0]] && e[1] < min_e[e[0]][0]) {
+          st.erase({min_e[e[0]][0], e[0]});
+          min_e[e[0]] = {e[1], u};
+          st.insert({e[1], e[0]});
+        }
+      }
+    }
+    return mst;
+  }
+
+  int64_t kruskal() {
+    vector<array<int, 3>> edges;
+    for (int u = 0; u < n; ++u) {
+      for (const auto& e : adj[u]) {
+        edges.push_back({e[1], u, e[0]});
+      }
+    }
+    sort(edges.begin(), edges.end());
+    DSU dsu(n);
+    int64_t mst = 0;
+    for (const auto& e : edges) {
+      if (dsu(e[1], e[2])) {
+        mst += e[0];
+      }
+    }
+    if (dsu.Ncmp != 1) {
+      return -1;
+    }
+    return mst;
+  }
+};
