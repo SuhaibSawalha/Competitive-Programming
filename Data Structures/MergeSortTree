@@ -1,0 +1,38 @@
+struct MergeSortTree {
+  int n;
+  vector<vector<int>> seg;
+  vector<int> a;
+
+  MergeSortTree(const vector<int> &v) {
+    a = v;
+    n = v.size();
+    seg.resize(4 * n);
+    build(1, 0, n - 1);
+  }
+
+  void build(int idx, int L, int R) {
+    if (L == R) {
+      seg[idx] = {a[L]};
+      return;
+    }
+    int mid = L + (R - L) / 2;
+    build(2 * idx, L, mid);
+    build(2 * idx + 1, mid + 1, R);
+    merge(seg[2 * idx].begin(), seg[2 * idx].end(), seg[2 * idx + 1].begin(), seg[2 * idx + 1].end(), back_inserter(seg[idx]));
+  }
+
+  int query(int st, int en, int val, int idx, int L, int R){
+    if (L >= st && R <= en) {
+      return upper_bound(seg[idx].begin(), seg[idx].end(), val) - lower_bound(seg[idx].begin(), seg[idx].end(), val);
+    }
+    if (L > en || R < st) {
+      return 0;
+    }
+    int mid = L + (R - L) / 2;
+    return query(st, en, val, 2 * idx, L, mid) + query(st, en, val, 2 * idx + 1, mid + 1, R);
+  }
+
+  int query(int st, int en, int val) {
+    return query(st, en, val, 1, 0, n - 1);
+  }
+};
