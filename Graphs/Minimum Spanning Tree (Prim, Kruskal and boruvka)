@@ -58,4 +58,42 @@ struct MinimumSpanningTree {
     }
     return cost;
   }
+
+  int64_t boruvka() {
+    mst.assign(n, {});
+    int64_t cost = 0;
+    vector<array<int, 3>> cheapest(n, {-1, -1, -1});
+    DSU dsu(n);
+    while (dsu.Ncmp > 1) {
+      for (int u = 0; u < n; ++u) {
+        for (const auto& v : adj[u]) {
+          int pu = dsu[u], pv = dsu[v[0]];
+          if (pu != pv) {
+            for (int p : {pu, pv}) {
+              if (cheapest[p][2] == -1 || cheapest[p][2] > v[1]) {
+                cheapest[p] = {u, v[0], v[1]};
+              }
+            }
+          }
+        }
+      }
+      bool united = false;
+      for (int i = 0; i < n; ++i) {
+        if (cheapest[i][2] != -1) {
+          int u = cheapest[i][0], v = cheapest[i][1], w = cheapest[i][2];
+          if (dsu(u, v)) {
+            cost += w;
+            mst[u].push_back({v, w});
+            mst[v].push_back({u, w});
+            united = true;
+          }
+          cheapest[i][2] = -1;
+        }
+      }
+      if (!united) {
+        return -1;
+      }
+    }
+    return cost;
+  }
 };
