@@ -1,60 +1,56 @@
 template <class T>
 struct Matrix {
-  int n;
+  int n, m;
   vector<vector<T>> a;
-  Matrix(const vector<vector<int64_t>>& b): n(b.size()) {
-    a.resize(n, vector<T>(n));
+  Matrix(const vector<vector<int64_t>>& b): n(b.size()), m(b[0].size()) {
+    a.resize(n, vector<T>(m));
     for (int i = 0; i < n; ++i) {
-      for (int j = 0; j < n; ++j) {
+      for (int j = 0; j < m; ++j) {
         a[i][j] = b[i][j];
       }
     }
   }
-
+ 
   T& operator()(int i, int j) {
+    assert(i >= 0 && j >= 0 && i < n && j < m);
     return a[i][j];
   }
-
+ 
   friend Matrix operator *(Matrix& a, Matrix& b) {
-    int n = a.n;
-    vector t(n, vector<int64_t>(n));
+    assert(a.m == b.n);
+    vector t(a.n, vector<int64_t>(b.m));
     Matrix c(t);
-    for (int i = 0; i < n; ++i) {
-      for (int j = 0; j < n; ++j) {
-        for (int k = 0; k < n; ++k) {
+    for (int i = 0; i < a.n; ++i) {
+      for (int j = 0; j < a.m; ++j) {
+        for (int k = 0; k < b.m; ++k) {
           c(i, k) += a(i, j) * b(j, k);
         }
       }
     }
     return c;
   }
-
+ 
   vector<Matrix<T>> powers;
   void precomputePowers() {
     powers = {*this};
-    for (int i = 1; i <= 62; ++i) {
+    for (int i = 1; i <= 64; ++i) {
       powers.push_back(powers.back() * powers.back());
     }
   }
-  T answer(int a, int b, int k) {
-    vector<T> dp(n);
-    dp[a] = 1;
-    for (int bit = 0; bit <= 62; ++bit) {
-      if (k & (1LL << bit)) {
-        vector<T> new_dp(n);
-        for (int i = 0; i < n; ++i) {
-          for (int j = 0; j < n; ++j) {
-            new_dp[j] += dp[i] * powers[bit](i, j);
-          }
-        }
-        swap(dp, new_dp);
+  T answer(int a, int b, int64_t p) {
+    vector dpa(1, vector<int64_t>(n));
+    dpa[0][a] = 1;
+    Matrix<T> dp(dpa);
+    for (int bit = 0; (1LL << bit) <= p; ++bit) {
+      if (p & (1LL << bit)) {
+        dp = dp * powers[bit];
       }
     }
-    return dp[b];
+    return dp(0, b);
   }
 };
 using mat = Matrix<Mint>;
-
+ 
 mat exp(mat a, int64_t p) {
   int n = a.n;
   vector m(n, vector<int64_t>(n, 0));
