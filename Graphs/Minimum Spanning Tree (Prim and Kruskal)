@@ -1,11 +1,12 @@
 struct MinimumSpanningTree {
   int n;
-  vector<vector<array<int, 2>>> adj;
+  vector<vector<array<int, 2>>> adj, mst;
 
   MinimumSpanningTree(const vector<vector<array<int, 2>>>& _adj): n(_adj.size()), adj(_adj) {}
 
   int64_t prim() {
-    int64_t mst = 0;
+    mst.assign(n, {});
+    int64_t cost = 0;
     set<array<int, 2>> st;
     vector<bool> visited(n);
     vector<array<int, 2>> min_e(n, {INT_MAX, 0});
@@ -17,8 +18,12 @@ struct MinimumSpanningTree {
       }
       int u = (*st.begin())[1];
       visited[u] = true;
-      mst += (*st.begin())[0];
+      cost += (*st.begin())[0];
       st.erase(st.begin());
+      if (u) {
+        mst[u].push_back({min_e[u][1], min_e[u][0]});
+        mst[min_e[u][1]].push_back({u, min_e[u][0]});
+      }
       for (const auto& e : adj[u]) {
         if (!visited[e[0]] && e[1] < min_e[e[0]][0]) {
           st.erase({min_e[e[0]][0], e[0]});
@@ -27,10 +32,11 @@ struct MinimumSpanningTree {
         }
       }
     }
-    return mst;
+    return cost;
   }
 
   int64_t kruskal() {
+    mst.assign(n, {});
     vector<array<int, 3>> edges;
     for (int u = 0; u < n; ++u) {
       for (const auto& e : adj[u]) {
@@ -39,15 +45,17 @@ struct MinimumSpanningTree {
     }
     sort(edges.begin(), edges.end());
     DSU dsu(n);
-    int64_t mst = 0;
+    int64_t cost = 0;
     for (const auto& e : edges) {
       if (dsu(e[1], e[2])) {
-        mst += e[0];
+        cost += e[0];
+        mst[e[1]].push_back({e[2], e[0]});
+        mst[e[2]].push_back({e[1], e[0]});
       }
     }
     if (dsu.Ncmp != 1) {
       return -1;
     }
-    return mst;
+    return cost;
   }
 };
