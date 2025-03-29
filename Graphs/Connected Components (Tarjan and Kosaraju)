@@ -1,12 +1,11 @@
 struct ConnectedComponents {
-  int SCC;
+  int n, SCC;
   vector<vector<int>> adj, dag, components;
   vector<int> cmp;
 
-  ConnectedComponents(const vector<vector<int>>& _adj): adj(_adj) {}
+  ConnectedComponents(const vector<vector<int>>& _adj): n(_adj.size()), adj(_adj) {}
 
   void tarjan() {
-    int n = adj.size();
     SCC = 0;
     components.clear();
     cmp.assign(n, -1);
@@ -48,7 +47,6 @@ struct ConnectedComponents {
   }  
 
   void kosaraju() {
-    int n = adj.size();
     SCC = 0;
     components.clear();
     cmp.assign(n, -1);
