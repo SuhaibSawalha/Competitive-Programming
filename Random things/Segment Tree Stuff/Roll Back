@@ -1,0 +1,15 @@
+stack<stack<pair<int, int64_t>>> roll;
+
+void update(int st, int v, int idx = 1, int L = 0, int R = n - 1) {
+  roll.top().push({idx, seg[idx]});
+  ...
+}
+
+void roll_back() {
+  while (roll.top().size()) {
+    auto [idx, s] = roll.top().top();
+    roll.top().pop();
+    seg[idx] = s;
+  }
+  roll.pop();
+}
