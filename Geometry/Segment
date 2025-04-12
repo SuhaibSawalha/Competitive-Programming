@@ -1,0 +1,63 @@
+struct Segment : public Line {
+
+  Segment() : Line() {}
+  Segment(long double _a, long double _b) : Line(_a, _b) {}
+  Segment(long double slope, point p) : Line(slope, p) {}
+  Segment(point _p1, point _p2) : Line(_p1, _p2) {}
+
+  bool contains(const point& p) const override {
+    return Line::contains(p) &&
+           (min(p1.x, p2.x) <= p.x && p.x <= max(p1.x, p2.x)) &&
+           (min(p1.y, p2.y) <= p.y && p.y <= max(p1.y, p2.y));
+  }
+
+  bool intersect(const Segment& other) const {
+    long double d1 = (other.p2 - other.p1).cross(p1 - other.p1);
+    long double d2 = (other.p2 - other.p1).cross(p2 - other.p1);
+    long double d3 = (p2 - p1).cross(other.p1 - p1);
+    long double d4 = (p2 - p1).cross(other.p2 - p1);
+    if (d1 == 0 && d2 == 0 && d3 == 0 && d4 == 0) {
+      return max(p1.x, p2.x) >= min(other.p1.x, other.p2.x) &&
+             max(p1.y, p2.y) >= min(other.p1.y, other.p2.y) &&
+             max(other.p1.x, other.p2.x) >= min(p1.x, p2.x) &&
+             max(other.p1.y, other.p2.y) >= min(p1.y, p2.y);
+    }
+    return (d1 * d2 <= 0) && (d3 * d4 <= 0);
+  }
+
+  long double distance(const point& p) const {
+    return point_segment_distance(p, p1, p2);
+  }
+
+  long double distance(const Segment& other) const {
+    if (intersect(other)) return 0.0;
+    long double dist1 = point_segment_distance(p1, other.p1, other.p2);
+    long double dist2 = point_segment_distance(p2, other.p1, other.p2);
+    long double dist3 = point_segment_distance(other.p1, p1, p2);
+    long double dist4 = point_segment_distance(other.p2, p1, p2);
+    return min({dist1, dist2, dist3, dist4});
+  }
+
+  long double point_segment_distance(const point& p, const point& a, const point& b) const {
+    long double dx = b.x - a.x;
+    long double dy = b.y - a.y;
+    if (dx == 0 && dy == 0) {
+      return sqrt((p.x - a.x) * (p.x - a.x) + (p.y - a.y) * (p.y - a.y));
+    }
+    long double t = ((p.x - a.x) * dx + (p.y - a.y) * dy) / (dx * dx + dy * dy);
+    if (t < 0) {
+      dx = p.x - a.x;
+      dy = p.y - a.y;
+    } else if (t > 1) {
+      dx = p.x - b.x;
+      dy = p.y - b.y;
+    } else {
+      long double near_x = a.x + t * dx;
+      long double near_y = a.y + t * dy;
+      dx = p.x - near_x;
+      dy = p.y - near_y;
+    }
+    return sqrt(dx * dx + dy * dy);
+  }
+
+};
