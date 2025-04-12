@@ -1,0 +1,56 @@
+struct Line {
+  long double a, b; // ax + b
+  point p1, p2;
+
+  Line(): a(0), b(0) {}
+  Line(long double _a, long double _b): a(_a), b(_b) {}
+  Line(long double slope, point p) {
+    a = slope;
+    b = p.y - slope * p.x;
+  }
+  Line(point a, point b): Line((a.y - b.y) / (a.x - b.x), a) {
+    p1 = a;
+    p2 = b;
+  }
+
+  long double slope() const {
+    return a;
+  }
+  long double getY(long double x) {
+    return a * x + b;
+  }
+  long double getX(long double y) {
+    return (y - b) / a;
+  }
+  bool contains(const point& p) {
+    return fabs(getY(p.x) - p.y) < eps;
+  }
+  bool intersect(const Line& l) {
+    return !is_parallel(l);
+  }
+  bool is_parallel(const Line& l) const {
+    return fabs(a - l.a) < eps;
+  }
+  bool is_perpendicular(const Line& l) const {
+    return fabs(a * l.a + 1) < eps;
+  }
+  point intersection(const Line& l) {
+    if (is_parallel(l)) {
+      throw runtime_error("Lines are parallel");
+    }
+    long double x = (l.b - b) / (a - l.a);
+    long double y = a * x + b;
+    return point(x, y);
+  }
+  long double distance(const point& p) const {
+    return fabs(a * p.x - p.y + b) / sqrt(a * a + 1);
+  }
+  string point_position(const point& p) {
+    point v1 = p2 - p1;
+    point v2 = p - p1;
+    long long cp = v1.cross(v2);
+    if (cp > 0) return "LEFT";
+    if (cp < 0) return "RIGHT";
+    return "TOUCH";
+  }
+};
