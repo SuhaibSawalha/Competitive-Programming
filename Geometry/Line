@@ -12,16 +12,16 @@ struct Line {
   long double slope() const {
     return a;
   }
-  long double getY(long double x) {
+  long double getY(long double x) const {
     return a * x + b;
   }
-  long double getX(long double y) {
+  long double getX(long double y) const {
     return (y - b) / a;
   }
-  bool contains(const point& p) {
+  virtual bool contains(const point& p) const {
     return fabs(getY(p.x) - p.y) < eps;
   }
-  bool intersect(const Line& l) {
+  bool intersect(const Line& l) const {
     return !is_parallel(l);
   }
   bool is_parallel(const Line& l) const {
@@ -30,7 +30,7 @@ struct Line {
   bool is_perpendicular(const Line& l) const {
     return fabs(a * l.a + 1) < eps;
   }
-  point intersection(const Line& l) {
+  point intersection(const Line& l) const {
     if (is_parallel(l)) {
       throw runtime_error("Lines are parallel");
     }
@@ -38,7 +38,7 @@ struct Line {
     long double y = a * x + b;
     return point(x, y);
   }
-  long double distance(const point& p) const {
+  virtual long double distance(const point& p) const {
     return fabs(a * p.x - p.y + b) / sqrt(a * a + 1);
   }
   string point_position(const point& p) {
