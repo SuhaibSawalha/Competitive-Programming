@@ -4,23 +4,28 @@ struct Point {
   Point(): x(0), y(0) {}
   Point(T _x, T _y): x(_x), y(_y) {}
 
-  friend istream& operator >> (istream& i, Point& p) {i >> p.x >> p.y;}
-  friend ostream& operator << (ostream& o, Point p) {cout << "(" << p.x << ", " << p.y << ")\n";}
-  friend bool operator == (Point& p, Point& q) {return p.x == q.x && p.y == q.y;}
-  friend bool operator != (Point& p, Point& q) {return p.x != q.x || p.y != q.y;}
+  friend istream& operator >>(istream& i, Point& p) {i >> p.x >> p.y; return i;}
+  friend ostream& operator <<(ostream& o, const Point& p) {cout << "(" << p.x << ", " << p.y << ")"; return o;}
+  friend bool operator == (const Point& p, const Point& q) {return p.x == q.x && p.y == q.y;}
+  friend bool operator != (const Point& p, const Point& q) {return p.x != q.x || p.y != q.y;}
 
-  friend Point operator + (Point& p, Point& q) {return Point(p.x+q.x, p.y+q.y);}
-  friend Point operator - (Point& p, Point& q) {return Point(p.x-q.x, p.y-q.y);}
-  friend Point operator * (Point& p, T q) {return Point(p.x*q, p.y*q);}
-  friend Point operator * (T q, Point& p) {return Point(p.x*q, p.y*q);}
-  friend Point operator / (Point& p, T q) {return Point(p.x/q, p.y/q);}
+  friend Point operator + (const Point& p, const Point& q) {return Point(p.x+q.x, p.y+q.y);}
+  friend Point operator - (const Point& p, const Point& q) {return Point(p.x-q.x, p.y-q.y);}
+  friend Point operator * (const Point& p, T q) {return Point(p.x*q, p.y*q);}
+  friend Point operator * (T q, const Point& p) {return Point(p.x*q, p.y*q);}
+  friend Point operator / (const Point& p, T q) {return Point(p.x/q, p.y/q);}
 
-  Point& operator += (Point& q) {x += q.x, y += q.y; return *this;}
-  Point& operator -= (Point& q) {x -= q.x, y -= q.y; return *this;}
+  Point& operator += (const Point& q) {x += q.x, y += q.y; return *this;}
+  Point& operator -= (const Point& q) {x -= q.x, y -= q.y; return *this;}
   Point& operator *= (T q) {x *= q, y *= q; return *this;}
   Point& operator /= (T q) {x /= q, y /= q; return *this;}
 
-  friend T operator ^ (Point& p, Point& q) {return sqrt(abs(p.x-q.x)+abs(p.y-q.y));}
-  friend Point operator | (Point& p, Point& q) {return Point((p.x+q.x)/2, (p.y+q.y)/2);}
+  Point median(const Point& q) {return Point((x + q.x) / 2, (y + q.y) / 2);}
+  long double distance(const Point& q) {return sqrt(abs(x - q.x) * abs(x - q.x) + abs(y - q.y) * abs(y - q.y));}
+  long double length() {return sqrt(x * x + y * y);}
+  long double angle() {long double deg = atan2(y, x); return deg < 0 ? deg + 2 * pi : deg;}
+  long double angle(const Point& q) {return acos(dot(q) / length() / q.length());}
+  long double dot(const Point& q) {return x * q.x + y * q.y;}
+  long double cross(const Point& q) {return x * q.y - y * q.x;}
 };
-using P = Point<long double>;
+using point = Point<long double>;
