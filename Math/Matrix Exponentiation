@@ -37,16 +37,13 @@ struct Matrix {
       powers.push_back(powers.back() * powers.back());
     }
   }
-  T answer(int a, int b, int64_t p) {
-    vector dpa(1, vector<int64_t>(n));
-    dpa[0][a] = 1;
-    Matrix<T> dp(dpa);
+  Matrix mult(Matrix a, int64_t p) {
     for (int bit = 0; (1LL << bit) <= p; ++bit) {
       if (p & (1LL << bit)) {
-        dp = dp * powers[bit];
+        a = powers[bit] * a;
       }
     }
-    return dp(0, b);
+    return a;
   }
 };
 using mat = Matrix<Mint>;
