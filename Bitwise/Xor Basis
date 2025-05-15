@@ -1,0 +1,75 @@
+template<typename T = int, int B = 31>
+struct XorBasis {
+
+  vector<T> basis;
+
+  XorBasis() {
+    basis.assign(B, 0);
+  }
+
+  XorBasis(vector<T> &a) {
+    XorBasis();
+    for (int i = 0; i < int(a.size()); ++i) {
+      insert(a[i]);
+    }
+  }
+
+  void insert(T x) {
+    for (int i = B - 1; ~i; --i) {
+      if (x >> i & 1) {
+        if (basis[i] == 0) {
+          basis[i] = x;
+          return;
+        }
+        x ^= basis[i];
+      }
+    }
+  }
+
+  T getMax() {
+    T ans = 0;
+    for (int i = B - 1; ~i; --i) {
+      ans = max(ans, ans ^ basis[i]);
+    }
+    return ans;
+  }
+
+  bool can(T x) {
+    for (int i = B - 1; ~i; --i) {
+      x = min(x, x ^ basis[i]);
+    }
+    return x == 0;
+  }
+
+  T differentXors() {
+    T ans = 1;
+    for (int i = 0; i < B; ++i) {
+      if (basis[i] != 0) {
+        ans *= 2;
+      }
+    }
+    return ans;
+  }
+
+  vector<T> allXors() {
+    vector<T> xors;
+    vector<int> ib;
+    for (int i = 0; i < B; ++i) {
+      if (basis[i] != 0) {
+        ib.push_back(basis[i]);
+      }
+    }
+    int M = int(ib.size());
+    for (int i = 0; i < 1 << M; ++i) {
+      int x = 0;
+      for (int j = 0; j < M; ++j) {
+        if (i >> j & 1) {
+          x ^= ib[j];
+        }
+      }
+      xors.push_back(x);
+    }
+    sort(xors.begin(), xors.end());
+    return xors;
+  }
+};
