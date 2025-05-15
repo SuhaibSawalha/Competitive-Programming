@@ -2,9 +2,11 @@ template<typename T = int, int B = 31>
 struct XorBasis {
 
   vector<T> basis;
+  int64_t zeros;
 
   XorBasis() {
     basis.assign(B, 0);
+    zeros = 1;
   }
 
   XorBasis(vector<T> &a) {
@@ -24,6 +26,7 @@ struct XorBasis {
         x ^= basis[i];
       }
     }
+    zeros = 2 * min(zeros, int64_t(LLONG_MAX) / 2);
     return false;
   }
 
@@ -40,6 +43,10 @@ struct XorBasis {
       x = min(x, x ^ basis[i]);
     }
     return x == 0;
+  }
+
+  int64_t times(T x) {
+    return can(x) ? zeros : int64_t(0);
   }
 
   T differentXors() {
