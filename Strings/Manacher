@@ -1,4 +1,4 @@
-vector<int> manacher_odd (string s) {
+vector<int> manacher_odd(string s) {
   int n = s.size();
   s = "$" + s + "^";
   vector<int> p(n + 2);
@@ -15,7 +15,7 @@ vector<int> manacher_odd (string s) {
   return vector<int>(begin(p) + 1, end(p) - 1);
 }
 
-pair<vector<int>, vector<int>> manacher (string s) {
+pair<vector<int>, vector<int>> manacher(string s) {
   string t;
   for (auto c: s) {
     t += string("#") + c;
@@ -23,7 +23,7 @@ pair<vector<int>, vector<int>> manacher (string s) {
   auto res = manacher_odd(t + "#");
   res = vector<int>(begin(res) + 1, end(res) - 1);
   vector<int> d_odd, d_even;
-  for (int i = 0; i < res.size(); ++i) {
+  for (int i = 0; i < (int)res.size(); ++i) {
     (i % 2 ? d_even : d_odd).push_back(res[i] - 1);
   }
   d_even.push_back(0);
