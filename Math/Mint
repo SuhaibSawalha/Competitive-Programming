@@ -149,3 +149,7 @@ template <typename T, typename U>
 Mint Pow (T a, U b){
   return power(Mint(a), b);
 }
+
+Mint modInv(Mint a) {
+  return power(a, mod - 2);
+}
