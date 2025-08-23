@@ -3,10 +3,12 @@ struct XorBasis {
 
   vector<T> basis;
   int64_t zeros;
+  bool can_make_zero;
 
   XorBasis() {
     basis.assign(B, 0);
     zeros = 1;
+    can_make_zero = 0;
   }
 
   XorBasis(vector<T> &a) {
@@ -27,7 +29,17 @@ struct XorBasis {
       }
     }
     zeros = 2 * min(zeros, int64_t(LLONG_MAX) / 2);
+    can_make_zero |= x == 0;
     return false;
+  }
+
+  void insert(XorBasis xb) {
+    for (int i = 0; i < B; ++i) {
+      if (xb.basis[i]) {
+        insert(xb.basis[i]);
+      }
+    }
+    can_make_zero |= xb.can_make_zero;
   }
 
   T getMax() {
