@@ -34,3 +34,22 @@ void ETF (int Num) {
     }
   }
 }
+
+map<int64_t, Mint> dp;
+Mint totient_sum(int64_t n) {
+  if (n < (int)phi.size()) {
+    return phi[n];
+  }
+  if (dp.count(n)) {
+    return dp[n];
+  }
+  Mint ans = inv2 * n * (n + 1);
+  int64_t l = 2;
+  while (l <= n) {
+    int64_t q = n / l;
+    int64_t r = n / q;
+    ans -= (r - l + 1) * totient_sum(q);
+    l = r + 1;
+  }
+  return dp[n] = ans;
+}
