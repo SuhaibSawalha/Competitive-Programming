@@ -16,7 +16,7 @@ void bridge (vector<vector<int>>& adj) {
         bridge(v, u);
         lowlink[u] = min(lowlink[u], lowlink[v]);
         if (visidx[u] < lowlink[v]) {
-	  is_bridge.insert({min(u, v), max(u, v)});
+	  	  is_bridge.insert({min(u, v), max(u, v)});
         }
       }
       else if (v != p) {
