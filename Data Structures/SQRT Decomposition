@@ -20,7 +20,7 @@ struct SQRT_Decomposition {
   T query(int l, int r) {
     T ans = init_val;
     while (l <= r) {
-      if (l % BLOCK == 0 && l + BLOCK <= r) {
+      if (l % BLOCK == 0 && l + BLOCK < r) {
         ans = merge(ans, sq[l / BLOCK]);
         l += BLOCK;
       } else {
