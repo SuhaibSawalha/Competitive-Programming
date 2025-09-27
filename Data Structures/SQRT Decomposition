@@ -1,0 +1,42 @@
+template <class T>
+struct SQRT_Decomposition {
+  vector<T> sq, v;
+  function<T(T, T)> merge;
+  int BLOCK;
+  T init_val;
+
+  SQRT_Decomposition(vector<T> &_v, function<T(T, T)> fun, T _init_val = 0) {
+    v = _v;
+    merge = fun;
+    int n = v.size();
+    BLOCK = sqrt(n);
+    init_val = _init_val;
+    sq.assign(n / BLOCK + 1, init_val);
+    for (int i = 0; i < n; ++i) {
+      sq[i / BLOCK] = merge(sq[i / BLOCK], v[i]);
+    }
+  }
+
+  T query(int l, int r) {
+    T ans = init_val;
+    int l_block = l / BLOCK;
+    int r_block = r / BLOCK;
+    if (l_block == r_block) {
+      for (int i = l; i <= r; ++i) {
+        ans = merge(ans, v[i]);
+      }
+      return ans;
+    }
+    for (int b = l_block + 1; b < r_block; ++b) {
+      ans = merge(ans, sq[b]);
+    }
+    l_block = (l_block + 1) * BLOCK;
+    for (int i = l; i < l_block; ++i) {
+      ans = merge(ans, v[i]);
+    }
+    for (int i = r_block * BLOCK; i <= r; ++i) {
+      ans = merge(ans, v[i]);
+    }
+    return ans;
+  }
+};
