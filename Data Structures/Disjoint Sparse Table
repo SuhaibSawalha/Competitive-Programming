@@ -1,0 +1,41 @@
+template <class T>
+struct Disjoint_Sparse_Table {
+  vector<vector<T>> sp;
+  vector<int> lg{-1};
+  function<T(T, T)> merge;
+
+  Disjoint_Sparse_Table(vector<T> &v, function<T(T, T)> fun) {
+    merge = fun;
+    int n = v.size();
+    for (int i = 1; i <= 2 * n; ++i){
+      lg.push_back(lg.back() + !(i & (i - 1)));  
+    }
+    sp.resize(lg[n] + 1, vector<T>(n));
+    sp[0] = v;
+    for (int k = 1; k <= lg[n]; ++k) {
+      int block_size = 1 << (k + 1);
+      for (int m = 0; m < n; m += block_size) {
+        int mid = min(m + (1 << k) - 1, n - 1);
+        int end = min(m + block_size - 1, n - 1);
+        sp[k][mid] = sp[0][mid];
+        for (int i = mid - 1; i >= m; --i) {
+          sp[k][i] = merge(sp[0][i], sp[k][i + 1]);
+        }
+        if (mid + 1 < n) {
+          sp[k][mid + 1] = sp[0][mid + 1];
+          for (int i = mid + 2; i <= end; ++i) {
+            sp[k][i] = merge(sp[k][i - 1], sp[0][i]);
+          }
+        }
+      }
+    }
+  }
+
+  T query(int l, int r) {
+    if (l == r) {
+      return sp[0][l];
+    }
+    int k = lg[l ^ r];
+    return merge(sp[k][l], sp[k][r]);
+  }
+};
