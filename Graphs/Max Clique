@@ -1,0 +1,73 @@
+struct MaxClique {
+  int n, ans;
+  vector<vector<bool>> g;
+  vector<vector<int>> st;
+  vector<int> dp, stk, res;
+ 
+  MaxClique(int n) {
+    this->n = n;
+    g.assign(n, vector<bool>(n, false));
+    dp.assign(n, 0);
+    st.assign(n, vector<int>(n, 0));
+    stk.assign(n, 0);
+    res.assign(n, 0);
+    ans = 0;
+  }
+ 
+  void addEdge(int u, int v, bool w = true) {
+    g[u][v] = w;
+    g[v][u] = w;
+  }
+ 
+  bool dfs(int sz, int num) {
+    if (sz == 0) {
+      if (num > ans) {
+        ans = num;
+        copy(stk.begin(), stk.begin() + num, res.begin());
+        return true;
+      }
+      return false;
+    }
+    for (int i = 0; i < sz; i++) {
+      if (sz - i + num <= ans) {
+        return false;
+      }
+      int u = st[num - 1][i];
+      if (dp[u] + num <= ans) {
+        return false;
+      }
+      int cnt = 0;
+      for (int j = i + 1; j < sz; j++) {
+        if (g[u][st[num - 1][j]]) {
+          st[num][cnt++] = st[num - 1][j];
+        }
+      }
+      stk[num] = u;
+      if (dfs(cnt, num + 1)) {
+        return true;
+      }
+    }
+    return false;
+  }
+ 
+  int solve() {
+    ans = 0;
+    fill(dp.begin(), dp.end(), 0);
+    for (int i = n - 1; ~i; --i) {
+      int cnt = 0;
+      for (int j = i + 1; j < n; j++) {
+        if (g[i][j]) {
+          st[0][cnt++] = j;
+        }
+      }
+      stk[0] = i;
+      dfs(cnt, 1);
+      dp[i] = ans;
+    }
+    return ans;
+  }
+ 
+  vector<int> getClique() {
+    return vector<int>(res.begin(), res.begin() + ans);
+  }
+};
