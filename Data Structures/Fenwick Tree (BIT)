@@ -14,7 +14,7 @@ struct FenwickTree {
   }
 
   void update(int i, T x) {
-    for (++i; i <= sz; i += i & -i) {
+    for (++i; i < sz; i += i & -i) {
       bit[i] += x;
     }
   }
