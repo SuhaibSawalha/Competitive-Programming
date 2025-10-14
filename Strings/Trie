@@ -9,6 +9,7 @@ struct Trie {
 
   void insert (T &s) {
     node* cur = root;
+    cur->cnt++;
     int n = s.size();
     for (int i = 0; i < n; ++i) {
       int c = s[i] - MinVal;
@@ -49,6 +50,7 @@ struct Trie {
 
   void erase (T &s) {
     node* cur = root;
+    cur->cnt--;
     int n = s.size();
     for (int i = 0; i < s.size(); ++i) {
       int c = s[i] - MinVal;
@@ -72,13 +74,7 @@ struct Trie {
   }
 
   int size () {
-    int ans = 0;
-    for (int i = 0; i < alpha; ++i) {
-      if (root -> next[i] != nullptr) {
-        ans += root -> next[i] -> cnt;
-      }
-    }
-    return ans;
+    return root->cnt;
   }
 
   vector<T> print (bool mul) {
