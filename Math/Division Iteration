@@ -1,4 +1,4 @@
-// 2√n different values of n/i and occurrences
+// 2*sqrt(n) different values of n/i and occurrences
 for (int i = 1, la, cnt; i <= n; i = la + 1) {
   la = n / (n / i);
   cnt = n / la - n / (la + 1);
