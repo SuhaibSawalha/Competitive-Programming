@@ -25,3 +25,24 @@ vector<int> fastfact(int x) {
   sort(primes.begin(), primes.end());
   return primes;
 }
+
+vector<int> linear_sieve(int N) {
+  vector<int> prime(N + 1);
+  iota(prime.begin(), prime.end(), 0);
+  for (int i = 4; i <= N; i += 2) {
+    prime[i] = 2;
+  }  
+  vector<int> primes{2};
+  for (int i = 3; i <= N; i += 2) {
+    if (prime[i] == i) {
+      primes.push_back(i);
+    }
+    for (int j = 1; j < (int)primes.size() && i * primes[j] <= N; ++j) {
+      prime[i * primes[j]] = primes[j];
+      if (i % primes[j] == 0) {
+        break;
+      }
+    }
+  }
+  return prime;
+}
