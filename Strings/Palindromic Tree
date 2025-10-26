@@ -1,0 +1,78 @@
+template<int alpha = 26, int MinVal = 'a', typename T = string> 
+struct PalindromicTree {
+  struct node {
+    node *insertEdg[alpha] = {}, *suffixEdg = nullptr;
+    int start, len, cnt = 0;
+    int end() {
+      return start + len - 1;
+    }
+  };
+  node *root1 = new node(), *root2 = new node(), *cur_node;
+  string str;
+  vector<node*> order_nodes;
+  int distinctNodes = 0;
+
+  PalindromicTree(string _str = "") {
+    root1->len = -1;
+    root1->suffixEdg = root1;
+    root2->len = 0;
+    root2->suffixEdg = root1;
+    cur_node = root1;
+    str = "";
+    for (char c : _str) {
+      insert(c);
+    }
+  }
+
+  node *go(node *cur, int idx) {
+    while (true) {
+      if (idx - cur->len >= 1 && str[idx] == str[idx - cur->len - 1]) {
+        return cur;
+      }
+      cur = cur->suffixEdg;
+    }
+  }
+
+  void insert(char c) {
+    int idx = str.size();
+    str += c;
+    node *cur = go(cur_node, idx);
+    if (cur->insertEdg[c - MinVal]) {
+      cur_node = cur->insertEdg[c - MinVal];
+      cur_node->cnt += 1;
+      order_nodes.push_back(cur_node);
+      distinctNodes += cur_node->cnt == 1;
+      return;
+    }
+    cur->insertEdg[c - MinVal] = new node();
+    cur_node = cur->insertEdg[c - MinVal];
+    cur_node->len = cur->len + 2;
+    cur_node->start = idx - cur_node->len + 1;
+    cur_node->cnt = 1;
+    order_nodes.push_back(cur_node);
+    distinctNodes += 1;
+    cur = cur->suffixEdg;
+    if (cur_node->len == 1) {
+      cur_node->suffixEdg = root2;
+      return;
+    }
+    cur = go(cur, idx);
+    cur_node->suffixEdg = cur->insertEdg[c - MinVal];
+  }
+
+  void remove() {
+    if (str.empty()) {
+      return;
+    }
+    str.pop_back();
+    if (--order_nodes.back()->cnt == 0) {
+      distinctNodes -= 1;
+    }
+    order_nodes.pop_back();
+    cur_node = order_nodes.empty() ? root1 : order_nodes.back();
+  }
+
+  int distinctPalSubstrings() {
+    return distinctNodes;
+  }
+};
