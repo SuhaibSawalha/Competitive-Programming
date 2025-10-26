@@ -3,13 +3,14 @@ struct PalindromicTree {
   struct node {
     node *insertEdg[alpha] = {}, *suffixEdg = nullptr;
     int start, len, cnt = 0;
+    int64_t occ = 0;
     int end() {
       return start + len - 1;
     }
   };
   node *root1 = new node(), *root2 = new node(), *cur_node;
   string str;
-  vector<node*> order_nodes;
+  vector<node*> order_nodes, all_nodes;
   int distinctNodes = 0;
 
   PalindromicTree(string _str = "") {
@@ -50,6 +51,7 @@ struct PalindromicTree {
     cur_node->start = idx - cur_node->len + 1;
     cur_node->cnt = 1;
     order_nodes.push_back(cur_node);
+    all_nodes.push_back(cur_node);
     distinctNodes += 1;
     cur = cur->suffixEdg;
     if (cur_node->len == 1) {
@@ -74,5 +76,25 @@ struct PalindromicTree {
 
   int distinctPalSubstrings() {
     return distinctNodes;
+  }
+
+  int64_t totalPalSubstrings() {
+    vector<node*> nodes = all_nodes;
+    sort(nodes.begin(), nodes.end(), [](node *a, node *b){ 
+      return a->len > b->len; 
+    });
+    for (node *cur : nodes) {
+      cur->occ = cur->cnt;
+    }
+    for (node *cur : nodes) {
+      if (cur->suffixEdg) {
+        cur->suffixEdg->occ += cur->occ;
+      }
+    }
+    int64_t total = 0;
+    for (node *cur : nodes) {
+      total += cur->occ;
+    }
+    return total;
   }
 };
