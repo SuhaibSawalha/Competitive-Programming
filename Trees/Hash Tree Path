@@ -1,0 +1,71 @@
+struct HashTreePath {
+  inline static vector<HS> pw = {HS(1, 1)};
+  inline static vector<HS> pwInv = {HS(1, 1)};
+  vector<HS> p, pr;
+  vector<int> S, E;
+  BinaryLifting bl;
+  int n;
+
+  HashTreePath(const string &str, const vector<vector<int>> &adj) : bl(adj) {
+    n = str.size();
+    fixSize(n);
+    S.resize(n);
+    E.resize(n);
+    p.resize(2 * n);
+    pr.resize(2 * n);
+    int dfst = 0;
+    auto dfs = [&](auto &&self, int u, int par, int d) -> void {
+      S[u] = dfst++;
+      p[S[u]] = str[u] * pw[d];
+      pr[S[u]] = str[u] * pw[n - d];
+      for (int v : adj[u]) {
+        if (v != par) {
+          self(self, v, u, d + 1);
+        }
+      }
+      E[u] = dfst++;
+      p[E[u]] = str[u] * -pw[d];
+      pr[E[u]] = str[u] * -pw[n - d];
+    };
+    dfs(dfs, 0, -1, 0);
+    for (int i = 1; i < 2 * n; ++i) {
+      p[i] += p[i - 1];
+      pr[i] += pr[i - 1];
+    }
+  }
+
+  static void fixSize(int n) {
+    while ((int)pw.size() <= n) {
+      pw.push_back(pw.back() * HS(prime, prime2));
+      pwInv.push_back(pw.back().inv());
+    }
+  }
+
+  HS getHash(int a, int b, int mid) {
+    b = bl.getNodePath(a, b, mid);
+    int l = bl.lca(a, b);
+    HS v = pr[S[a]] - (S[l] == 0 ? HS(0, 0) : pr[S[l] - 1]);
+    v *= pwInv[n - bl.depth[a]];
+    if (l == b) {
+      return v;
+    }
+    HS v2 = p[S[b]] - p[S[l]];
+    v2 *= pwInv[bl.depth[l] + 1];
+    v2 *= pw[bl.distance(a, l) + 1];
+    return v + v2;
+  };
+
+  HS getHash(int a, int b) {
+    return getHash(a, b, bl.distance(a, b));
+  }
+
+  static HS hashString(string &s) {
+    int n = s.size();
+    fixSize(n);
+    HS hs;
+    for (int i = 0; i < n; ++i) {
+      hs += s[i] * pw[i];
+    }
+    return hs;
+  }
+};
