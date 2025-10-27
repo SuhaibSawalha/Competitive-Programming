@@ -1,32 +1,30 @@
 struct BinaryLifting {
-  int n;
-  const int exp = 20;
+  int n, exp = 20;
   vector<int> depth;
-  vector<vector<int>> anc;
-
-  BinaryLifting(vector<vector<int>>& adj): n(adj.size()) {
+  vector<vector<int>> T;
+  BinaryLifting(const vector<vector<int>> &adj) {
+    n = adj.size();
+    T = vector<vector<int>>(n, vector<int>(exp));
     depth.resize(n);
-    anc.resize(n, vector<int>(exp, -1));
-    dfs(adj);
+    auto dfs = [&](auto &&self, int u, int p, int d) -> void {
+      T[u][0] = p;
+      depth[u] = d++;
+      for (int v : adj[u]) {
+        if (v != p) {
+          self(self, v, u, d);
+        }
+      }
+    };
+    dfs(dfs, 0, -1, 0);
     for (int i = 1; i < exp; ++i) {
       for (int u = 0; u < n; ++u) {
-        if (~anc[u][i - 1]) {
-          anc[u][i] = anc[anc[u][i - 1]][i - 1];
+        if (~T[u][i - 1]) {
+          T[u][i] = T[T[u][i - 1]][i - 1];
         }
       }
     }
   }
-
-  void dfs(vector<vector<int>>& adj, int u = 0, int p = -1, int d = 0) {
-    anc[u][0] = p;
-    depth[u] = d++;
-    for (int v : adj[u]) {
-      if (v != p){
-        dfs(adj, v, u, d);
-      }
-    }
-  }
-
+ 
   int lca(int u, int v) {
     if (depth[u] < depth[v]) {
       swap(u, v);
@@ -34,41 +32,45 @@ struct BinaryLifting {
     int dif = depth[u] - depth[v];
     for (int i = 0; i < exp; ++i) {
       if (dif >> i & 1) {
-        u = anc[u][i];
+        u = T[u][i];
       }
-    }       
+    }
     if (u == v) {
       return u;
     }
     for (int i = exp - 1; ~i; --i) {
-      if (anc[u][i] != anc[v][i]) {
-        u = anc[u][i], v = anc[v][i];
+      if (T[u][i] != T[v][i]) {
+        u = T[u][i];
+        v = T[v][i];
       }
     }
-    return anc[u][0];
+    return T[u][0];
   }
-
+ 
   int distance(int u, int v) {
-    return depth[u] + depth[v] - 2 * depth[lca(u,v)];
+    return depth[u] + depth[v] - 2 * depth[lca(u, v)];
   }
-
-  int jump(int u, int steps) {
+ 
+  int distance(int u, int v, int l) {
+    return depth[u] + depth[v] - 2 * depth[l];
+  }
+ 
+  int jump(int u, int d) {
     for (int i = 0; i < exp; ++i) {
-      if (steps >> i & 1) {
-        u = anc[u][i];
+      if (d >> i & 1) {
+        u = T[u][i];
       }
     }
     return u;
   }
-
-  // move m steps in the path between u and v
-  int getNode(int u, int v, int m) {
-    int l = lca(u, v);
-    int d = distance(u, l);
-    if (d >= m) {
-      return jump(u, m);
+ 
+  int getNodePath(int a, int b, int dis) {
+    int l = lca(a, b);
+    int d = distance(a, l, l);
+    if (d >= dis) {
+      return jump(a, dis);
     }
-    d = distance(u, v);
-    return jump(v, d - m);
-  }
+    d = distance(a, b, l);
+    return jump(b, d - dis);
+  };
 };
