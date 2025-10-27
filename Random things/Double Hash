@@ -1,0 +1,81 @@
+const int mod = 1e9 + 7, prime = 101;
+const int mod2 = 1e9 + 9, prime2 = 103;
+
+struct HS {
+  int v1 = 0, v2 = 0;
+
+  HS() = default;
+  HS(int a, int b) : v1((a % mod + mod) % mod), v2((b % mod2 + mod2) % mod2) {}
+
+  explicit HS(int x) : v1((x % mod + mod) % mod), v2((x % mod2 + mod2) % mod2) {}
+
+  int64_t value() const {
+    return int64_t(v1) * mod + v2;
+  }
+
+  HS operator+(const HS& other) const {
+    return HS((v1 + other.v1) % mod, (v2 + other.v2) % mod2);
+  }
+
+  HS operator-(const HS& other) const {
+    return HS(
+      ((v1 - other.v1) % mod + mod) % mod,
+      ((v2 - other.v2) % mod2 + mod2) % mod2
+    );
+  }
+
+  HS operator*(const HS& other) const {
+    return HS(
+      int(1LL * v1 * other.v1 % mod),
+      int(1LL * v2 * other.v2 % mod2)
+    );
+  }
+
+  HS operator-() const {
+    return HS(
+      (0 - v1) % mod,
+      (0 - v2) % mod2
+    );
+  }
+
+  HS operator+(int x) const {
+    return *this + HS(x);
+  }
+
+  HS operator-(int x) const {
+    return *this - HS(x);
+  }
+
+  HS operator*(int x) const {
+    return *this * HS(x);
+  }
+
+  friend HS operator+(int x, const HS& h) { return HS(x) + h; }
+  friend HS operator-(int x, const HS& h) { return HS(x) - h; }
+  friend HS operator*(int x, const HS& h) { return HS(x) * h; }
+
+  HS& operator+=(const HS& other) { return *this = *this + other; }
+  HS& operator-=(const HS& other) { return *this = *this - other; }
+  HS& operator*=(const HS& other) { return *this = *this * other; }
+
+  HS& operator+=(int x) { return *this = *this + x; }
+  HS& operator-=(int x) { return *this = *this - x; }
+  HS& operator*=(int x) { return *this = *this * x; }
+
+  HS fastpow(long long p) const {
+    HS base = *this, res(1, 1);
+    while (p > 0) {
+      if (p & 1) res = res * base;
+      base = base * base;
+      p >>= 1;
+    }
+    return res;
+  }
+
+  HS inv() const {
+    return HS(
+      this->fastpow(mod - 2).v1,
+      this->fastpow(mod2 - 2).v2
+    );
+  }
+};
