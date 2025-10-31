@@ -1,0 +1,172 @@
+template<int alpha = 26, int MinVal = 'a', typename T = string> 
+struct SuffixAutomaton {
+  struct node {
+    node *next[alpha] = {};
+    node *link = nullptr;
+    int len = 0, id = 0;
+  };
+  node *root = new node(), *last = root;
+  vector<node*> nodes;
+  vector<int64_t> cnt;
+
+  SuffixAutomaton(T &s = T{}) {
+    nodes = {root};
+    cnt = {0};
+    for (int i = 0; i < (int)s.size(); ++i) {
+      insert(s[i] - MinVal);
+    }
+  }
+
+  void insert(int c) {
+    node *cur = new node();
+    cur->id = nodes.size();
+    nodes.push_back(cur);
+    cnt.push_back(1);
+    cur->len = last->len + 1;
+    node *p = last;
+    while (p && !p->next[c]) {
+      p->next[c] = cur;
+      p = p->link;
+    }
+    if (!p) {
+      cur->link = root;
+    } else {
+      node *q = p->next[c];
+      if (p->len + 1 == q->len) {
+        cur->link = q;
+      } else {
+        node *clone = new node();
+        clone->id = nodes.size();
+        nodes.push_back(clone);
+        cnt.push_back(0);
+        clone->len = p->len + 1;
+        for (int i = 0; i < alpha; ++i) {
+          clone->next[i] = q->next[i];
+        }
+        clone->link = q->link;
+        while (p && p->next[c] == q) {
+          p->next[c] = clone;
+          p = p->link;
+        }
+        q->link = cur->link = clone;
+      }
+    }
+    last = cur;
+  }
+
+  int getId(T &s) {
+    node *cur = root;
+    for (int i = 0; i < (int)s.size(); ++i) {
+      int c = s[i] - MinVal;
+      cur = cur->next[c];
+      if (!cur) {
+        return -1;
+      }
+    }
+    return cur->id;
+  }
+
+  bool contains(T &s) {
+    return getId(s) != -1;
+  }
+
+  int64_t distinctSubstrings() {
+    int64_t res = 0;
+    for (int i = 1; i < (int)nodes.size(); ++i) {
+      res += nodes[i]->len - nodes[i]->link->len;
+    }
+    return res;
+  }
+
+  vector<int64_t> calcOccs(vector<int64_t> &val) {
+    vector<int64_t> occs((int)nodes.size());
+    auto dfs = [&](auto &&self, node *cur) -> void {
+      if (occs[cur->id]) {
+        return;
+      }
+      int64_t res = val[cur->id];
+      for (int i = 0; i < alpha; ++i) {
+        if (cur->next[i]) {
+          self(self, cur->next[i]);
+          res += occs[cur->next[i]->id];
+        }
+      }
+      occs[cur->id] = res;
+    };
+    dfs(dfs, root);
+    return occs;
+  }
+
+  vector<int64_t> calcDistinctOccs() {
+    vector<int64_t> val((int)nodes.size(), 1);
+    return calcOccs(val);
+  }
+
+  vector<int64_t> calcOccs() {
+    return calcOccs(cnt);
+  }
+
+  T kth(int64_t k, const vector<int64_t> &occ, const vector<int64_t> &cnt) {
+    T res;
+    auto dfs = [&](auto &&self, node *cur) -> void {
+      if (k <= 0) {
+        return;
+      }
+      for (int i = 0; i < alpha; ++i) {
+        if (!cur->next[i]) {
+          continue;
+        }
+        if (k <= occ[cur->next[i]->id]) {
+          res.push_back(i + MinVal);
+          k -= cnt[cur->next[i]->id];
+          self(self, cur->next[i]);
+          return;
+        } else {
+          k -= occ[cur->next[i]->id];
+        }
+      }
+    };
+    dfs(dfs, root);
+    return res;
+  }
+
+  T distinctKth(int64_t k) {
+    vector<int64_t> occ = calcDistinctOccs();
+    vector<int64_t> val((int)nodes.size(), 1);
+    return kth(k, occ, val);
+  }
+
+  T kth(int64_t k) {
+    vector<int64_t> occ = calcOccs();
+    return kth(k, occ, cnt);
+  }
+
+  void init_cnt() {
+    int n = nodes.size();
+    vector<int> deg(n);
+    for (int i = 1; i < n; ++i) {
+      deg[nodes[i]->link->id] += 1;
+    }
+    queue<node*> q;
+    for (int i = 0; i < n; ++i) {
+      if (deg[nodes[i]->id] == 0) {
+        q.push(nodes[i]);
+      }
+    }
+    while (q.size()) {
+      node *u = q.front();
+      q.pop();
+      if (u->link) {
+        cnt[u->link->id] += cnt[u->id];
+        if (!--deg[u->link->id]) {
+          q.push(u->link);
+        }
+      }
+    }
+  }
+
+  int64_t count(T &s) {
+    int id = getId(s);
+    return id == -1 ? 0 : cnt[id];
+  }
+};
