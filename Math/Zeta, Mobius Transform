@@ -67,6 +67,8 @@ vector<T> OrConvolution(vector<T> A, vector<T> B) {
   SubsetMobiusTransform(A);
   return A;
 }
+// cnt2[i] -= cnt[i], cnt2[i] /= 2
+// cnt3[i] -= 2 * cnt2[i], cnt3[i] /= 3
 
 vector<int> PrimeEnumerate(int n) {
   vector<int> P; vector<bool> B(n + 1, 1);
