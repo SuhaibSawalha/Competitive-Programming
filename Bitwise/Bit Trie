@@ -43,6 +43,28 @@ struct BitTrie {
     return ans;
   }
 
+  // number of elements b => (a ^ b) > k
+  int countXor(int a, int k) {
+    int ans = 0;
+    node *cur = root;
+    for (int bit = B; ~bit; --bit) {
+      int index_a = a >> bit & 1;
+      int index_k = k >> bit & 1;
+      if (index_k) {
+        cur = cur-> child[index_a ^ 1];
+      } else {
+        if (cur-> child[index_a ^ 1] && cur-> child[index_a ^ 1]->size) {
+          ans += cur->child[index_a ^ 1]->size;
+        }
+        cur = cur->child[index_a];
+      }
+      if (!cur || cur->size == 0) {
+        return ans;
+      }
+    }
+    return ans;
+  }
+
   void insert_unique(T n, int bit, node *cur) {
     if (bit == -1) {
       cur-> unique = 1;
