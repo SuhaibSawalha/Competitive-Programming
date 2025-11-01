@@ -47,7 +47,7 @@ struct BitTrie {
   int countXor(int a, int k) {
     int ans = 0;
     node *cur = root;
-    for (int bit = B; ~bit; --bit) {
+    for (int bit = N; ~bit; --bit) {
       int index_a = a >> bit & 1;
       int index_k = k >> bit & 1;
       if (index_k) {
