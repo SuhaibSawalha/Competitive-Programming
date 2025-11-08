@@ -1,3 +1,4 @@
+// Positive Costs
 template<typename T> 
 struct MinCostMaxFlow {
   struct Edge {
