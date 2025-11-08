@@ -1,0 +1,71 @@
+template<typename T> 
+struct MinCostMaxFlow {
+  struct Edge {
+    int to, rev;
+    T cap, cost;
+  };
+
+  int n;
+  vector<vector<Edge>> adj;
+  vector<T> dist, pot, flow;
+  vector<int> parent_v, parent_e;
+  const T INF;
+
+  MinCostMaxFlow(int n): n(n), adj(n), dist(n), pot(n), parent_v(n), parent_e(n),
+    INF(numeric_limits<T>::max() / 4) {}
+
+  void add(int u, int v, T cap, T cost) {
+    adj[u].push_back({v, (int)adj[v].size(), cap, cost});
+    adj[v].push_back({u, (int)adj[u].size() - 1, 0, -cost});
+  }
+
+  pair<T, T> min_cost_max_flow(int s, int t) {
+    T flow = 0, cost = 0;
+    fill(pot.begin(), pot.end(), 0);
+    while (true) {
+      fill(dist.begin(), dist.end(), INF);
+      dist[s] = 0;
+      priority_queue<pair<T, int>, vector<pair<T, int>>, greater<pair<T, int>>> pq;
+      pq.push({0, s});
+      while (!pq.empty()) {
+        auto [d, u] = pq.top(); pq.pop();
+        if (d != dist[u]) {
+          continue;
+        }
+        for (int i = 0; i < (int)adj[u].size(); ++i) {
+          auto &e = adj[u][i];
+          if (e.cap > 0) {
+            T nd = dist[u] + e.cost + pot[u] - pot[e.to];
+            if (nd < dist[e.to]) {
+              dist[e.to] = nd;
+              parent_v[e.to] = u;
+              parent_e[e.to] = i;
+              pq.push({nd, e.to});
+            }
+          }
+        }
+      }
+      if (dist[t] == INF) {
+        break;
+      }
+      for (int i = 0; i < n; ++i) {
+        if (dist[i] < INF) { 
+          pot[i] += dist[i];
+        }
+      }
+      T push = INF;
+      for (int v = t; v != s; v = parent_v[v]) {
+        auto &e = adj[parent_v[v]][parent_e[v]];
+        push = min(push, e.cap);
+      }
+      for (int v = t; v != s; v = parent_v[v]) {
+        auto &e = adj[parent_v[v]][parent_e[v]];
+        e.cap -= push;
+        adj[v][e.rev].cap += push;
+        cost += push * e.cost;
+      }
+      flow += push;
+    }
+    return {flow, cost};
+  }
+};
