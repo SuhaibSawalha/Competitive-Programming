@@ -1,7 +1,7 @@
 template<typename T> 
 struct Dinic {
 
-  vector<vector<pair<int, T>>> adj, adj2;
+  vector<vector<pair<int, T>>> adj;
   vector<T> cap;
   vector<int> visited, dist, st;
   int vid = 0, cur = 0, snk;
