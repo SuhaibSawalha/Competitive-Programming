@@ -1,7 +1,7 @@
 template <class T = string> 
 vector<int> kmp (T &s){
   int n = s.size();
-	vector<int> fail(n);
+  vector<int> fail(n);
   fail[0] = 0;
   int len = 0;
   for (int i = 1; i < n; ++i) {
