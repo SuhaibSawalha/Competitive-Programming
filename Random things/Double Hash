@@ -79,3 +79,28 @@ struct HS {
     );
   }
 };
+
+const HS C = HS(prime, prime2);
+const HS U = HS(1, 1);
+ 
+struct HashInterval {
+  vector<HS> ha, pw;
+  HashInterval(string& str) : ha(str.size() + 1), pw(ha) {
+    pw[0] = U;
+    for (int i = 0; i < (int)str.size(); ++i) {
+      ha[i + 1] = ha[i] * C + str[i];
+      pw[i + 1] = pw[i] * C;
+    }
+  }
+  HS hashInterval(int a, int b) { // hash [a, b)
+    return ha[b] - ha[a] * pw[b - a];
+  }
+};
+ 
+HS hashString(string& s) {
+  HS h{}; 
+  for(char c : s) {
+    h = h * C + c;
+  }
+  return h;
+}
