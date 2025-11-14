@@ -38,4 +38,5 @@ struct safe_array_hash {
     return hash_obj(hash_key);
   }
 };
-template <class T> using hash_set = gp_hash_table<T, null_type, safe
+template<class T> using hash_set = gp_hash_table<T, null_type, safe_hash>;
+template<class T, class U> using hash_map = gp_hash_table<T, U, safe_hash>;
