@@ -28,10 +28,10 @@ struct MO {
     res -= x;
   }
 
-  vector<long long> solve () {
+  vector<int64_t> solve () {
     sort(qs.begin(), qs.end());
     int q = qs.size();
-    vector<long long> ans(q);
+    vector<int64_t> ans(q);
     int s = 1, e = 0;
     for (int i = 0; i < q; ++i) {
       while (e < qs[i].r) add(a[++e]);
