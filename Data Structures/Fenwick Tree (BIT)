@@ -50,6 +50,6 @@ struct FenwickTree {
   }
 
   int size() {
-    return query(sz - 1);
+    return query(sz - 2);
   }
 };
