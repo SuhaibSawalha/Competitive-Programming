@@ -1,0 +1,71 @@
+int64_t modmul(int64_t a, int64_t b, int64_t mod) {
+  return (long long)((unsigned __int128)a * b % mod);
+}
+int64_t modmul2(int64_t a, int64_t b, int64_t p) {
+  int64_t c = a * b - p * (int64_t)(1.L / p * a * b);
+  return c + p * (c < 0) - p * (c >= p);
+}
+int64_t modpow(int64_t a, int64_t e, int64_t mod) {
+  int64_t r = 1;
+  while(e) {
+    if (e & 1) r = modmul(r, a, mod);
+    a = modmul(a, a, mod);
+    e >>= 1;
+  }
+  return r;
+}
+bool isPrime64(int64_t n) {
+  if (n < 2) return false;
+  for (int64_t p : {2,3,5,7,11,13,17,19,23,29,31,37}) {
+    if (n % p == 0) return n == p;
+  }
+  int64_t d = n - 1, s = 0;
+  while ((d & 1) == 0) { d >>= 1; ++s; }
+  for (int64_t a : {2LL, 325LL, 9375LL, 28178LL, 450775LL, 9780504LL, 1795265022LL}) {
+    if (a % n == 0) continue;
+    int64_t x = modpow(a % n, d, n);
+    if (x == 1 || x == n - 1) continue;
+    bool comp = true;
+    for (int r = 1; r < s; ++r) {
+      x = modmul(x, x, n);
+      if (x == n - 1) { comp = false; break; }
+    }
+    if (comp) return false;
+  }
+  return true;
+}
+
+static inline int64_t modmul_ll(int64_t a, int64_t b, int64_t mod) {
+  return (a * b) % mod;
+}
+static inline int64_t modpow_ll(int64_t a, int64_t e, int64_t mod) {
+  int64_t res = 1;
+  a %= mod;
+  while (e) {
+    if (e & 1) res = modmul_ll(res, a, mod);
+    a = modmul_ll(a, a, mod);
+    e >>= 1;
+  } 
+  return res;
+}
+bool isPrime32(int n) {
+  if (n < 2) return false;
+  for (int p : {2u,3u,5u,7u,11u,13u,17u,19u,23u,29u,31u}) {
+    if (n % p == 0) return n == p;
+  }
+  int s = 0;
+  int64_t d = n - 1;
+  while ((d & 1) == 0) { d >>= 1; ++s; }
+  for (int a : {2u, 7u, 61u}) {
+    if (a % n == 0) continue;
+    int64_t x = modpow_ll(a, d, n);
+    if (x == 1 || x == n - 1) continue;
+    bool composite = true;
+    for (int r = 1; r < s; ++r) {
+      x = modmul_ll(x, x, n);
+      if (x == n - 1) { composite = false; break; }
+    }
+    if (composite) return false;
+  }
+  return true;
+}
