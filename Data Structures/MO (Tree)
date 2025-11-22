@@ -1,0 +1,84 @@
+struct MO_Tree {
+  vector<int> ord;
+  int n, BLOCK;
+  LCA bl;
+  vector<int> S, E, SE;
+
+  MO_Tree(vector<vector<int>> &adj, vector<int> &a): n(a.size()), BLOCK(sqrt(a.size())), bl(adj) {
+    int dfst = 0;
+    S.resize(n);
+    E.resize(n);
+    SE.resize(2 * n);
+    auto dfs = [&](auto &&self, int u, int p) -> void {
+      S[u] = dfst++;
+      ord.push_back(a[u]);
+      for (int v : adj[u]) {
+        if (v != p) {
+          self(self, v, u);
+        }
+      }
+      E[u] = dfst++;
+      ord.push_back(a[u]);
+      SE[S[u]] = SE[E[u]] = S[u];
+    };
+    dfs(dfs, 0, -1);
+  }
+
+  struct query {
+    int l, r, id, B, lca;
+    pair<int, int> P () {
+      return make_pair(l / B, ((l / B) & 1) ? -r : r);
+    }
+    bool operator< (query &q) {
+      return P() < q.P();
+    }
+  };
+  vector<query> qs;
+
+  void query(int u, int v) {
+    int lca = bl.lca(u, v);
+    if (S[u] > S[v]) {
+      swap(u, v);
+    }
+    int l = u == lca ? S[u] + 1 : E[u];
+    int r = S[v];
+    int slca = S[bl.lca(u, v)];
+    qs.push_back({l, r, (int)qs.size(), BLOCK, slca});
+  }
+
+  vector<int> state;
+  void add(int x) {
+    mex.add(x);
+  }
+
+  void rem(int x) {
+    mex.remove(x);
+  }
+
+  void change(int ind) {
+    if (state[ind] == 0) {
+      add(ord[ind]);
+    } else {
+      rem(ord[ind]);
+    }
+    state[ind] ^= 1;
+  }
+
+  vector<int64_t> solve() {
+    state.resize((int)ord.size());
+    sort(qs.begin(), qs.end());
+    int q = qs.size();
+    vector<int64_t> ans(q);
+    int s = 1, e = 0;
+    for (int i = 0; i < q; ++i) {
+      while (e < qs[i].r) change(SE[++e]);
+      while (s > qs[i].l) change(SE[--s]);
+      while (s < qs[i].l) change(SE[s++]);
+      while (e > qs[i].r) change(SE[e--]);
+      add(ord[qs[i].lca]);
+      ans[qs[i].id] = mex.get_mex();
+      rem(ord[qs[i].lca]);
+    }
+    return ans;
+  }
+};
