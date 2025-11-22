@@ -29,7 +29,7 @@ struct LCA {
     for (int i = 1; i < lg[n] + 1; ++i) {
       for (int j = 0; j < n - (1 << i) + 1; ++j) {
         int a = sp[i - 1][j];
-        int b = sp[i - 1][j + (1 << i - 1)];
+        int b = sp[i - 1][j + (1 << (i - 1))];
         sp[i][j] = depth[idx2node[a]] < depth[idx2node[b]] ? a : b;
       }
     }
