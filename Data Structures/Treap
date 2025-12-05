@@ -19,7 +19,8 @@ class Treap {
         freq = t;
         push_up();
       }
-      void push_up () {
+
+      void push_up() {
         size = freq;
         for (int dir = 0; dir < 2; ++dir) {
           if (child[dir]) {
@@ -30,7 +31,7 @@ class Treap {
     };
     node* head = nullptr;
  
-    void push_up (node*& root) {
+    void push_up(node*& root) {
       if (root) {
         root-> push_up();
       }
@@ -38,7 +39,7 @@ class Treap {
  
     // lf = < val
     // rt = >= val
-    void split (node* root, T& val, node*& lf, node*& rt) {
+    void split(node* root, T& val, node*& lf, node*& rt) {
       if (root == nullptr) {
         lf = rt = nullptr;
         return;
@@ -46,33 +47,29 @@ class Treap {
       if (val < root-> val) {
         split(root-> child[L], val, lf, root-> child[L]);
         rt = root;
-      }
-      else {
+      } else {
         split(root-> child[R], val, root-> child[R], rt);
         lf = root;
       }    
       push_up(root);
     }
  
-    void merge (node*& root, node* lf, node* rt) {
+    void merge(node*& root, node* lf, node* rt) {
       if (lf == nullptr) {
         root = rt;
-      }
-      else if (rt == nullptr) {
+      } else if (rt == nullptr) {
         root = lf;
-      }
-      else if (lf-> p > rt-> p) {
+      } else if (lf-> p > rt-> p) {
         merge(lf-> child[R], lf-> child[R], rt);
         root = lf;
-      }
-      else {
+      } else {
         merge(rt-> child[L], lf, rt-> child[L]);
         root = rt;
       }
       push_up(root);
     }
  
-    void insert (node*& root, node* node) {
+    void insert(node*& root, node* node) {
       if (root == nullptr) {
         root = node;
         return;
@@ -80,37 +77,32 @@ class Treap {
       if (node-> p > root-> p) {
         split(root, node-> val, node-> child[L], node-> child[R]);
         root = node;
-      }
-      else if (node-> val < root-> val) {
+      } else if (node-> val < root-> val) {
         insert(root-> child[L], node);
-      }
-      else {
+      } else {
         insert(root-> child[R], node);
       }
       push_up(root);
     }
  
-    void insert (node*& root, T& val, int& freq) {
+    void insert(node*& root, T& val, int& freq) {
       if (!increase(root, val, freq)) {
         insert(root, new node(val, freq));
       }
     } 
  
-    void erase (node*& root, T& val, int& freq) {
+    void erase(node*& root, T& val, int& freq) {
       if (root == nullptr) {
         return;
       }
       if (val < root-> val) {
         erase(root-> child[L], val, freq);
-      }
-      else if (val > root-> val){
+      } else if (val > root-> val){
         erase(root-> child[R], val, freq);
-      }
-      else {
+      } else {
         if (root-> freq > freq) {
           root->freq -= freq;
-        }
-        else {
+        } else {
           node* temp;
           merge(temp, root-> child[L], root-> child[R]);
           delete root;
@@ -120,7 +112,7 @@ class Treap {
       push_up(root);
     } 
  
-    int count (node*& root, T& val) {
+    int count(node*& root, T& val) {
       if (root == nullptr) {
         return 0;
       }
@@ -133,7 +125,7 @@ class Treap {
       return count(root-> child[R], val);
     } 
  
-    bool increase (node*& root, T& val, int& freq) {
+    bool increase(node*& root, T& val, int& freq) {
       if (root == nullptr) {
         return 0;
       }
@@ -145,15 +137,14 @@ class Treap {
       bool res = 0;
       if (val < root-> val) {
         res = increase(root-> child[L], val, freq);
-      }
-      else {
+      } else {
         res = increase(root-> child[R], val, freq); 
       }
       push_up(root);
       return res;
     }
    
-    void dbg (node* root, int depth) {
+    void dbg(node* root, int depth) {
       if (root == nullptr) {
         return;
       }
@@ -162,7 +153,7 @@ class Treap {
       dbg(root->child[R], depth + 1);
     } 
  
-    int smaller (node*& root, T& val) {
+    int smaller(node*& root, T& val) {
       if (root == nullptr) {
         return 0;
       }
@@ -176,7 +167,7 @@ class Treap {
       return smaller(root-> child[R], val) + Lsize + root-> freq;
     } 
  
-    T kth (node*& root, int val) {
+    T kth(node*& root, int val) {
       int Lsize = size(root-> child[L]);
       if (val < Lsize) {
         return kth(root-> child[L], val);
@@ -189,25 +180,25 @@ class Treap {
       return kth(root-> child[R], val);
     } 
 
-    T min (node*& root) {
-    	if (root-> child[L] == nullptr) {
-    		return root-> val;
-    	}
-    	return min(root-> child[L]);
+    T min(node*& root) {
+      if (root-> child[L] == nullptr) {
+        return root-> val;
+      }
+      return min(root-> child[L]);
     }
 
-    T max (node*& root) {
-    	if (root-> child[R] == nullptr) {
-    		return root-> val;
-    	}
-    	return max(root-> child[R]);
+    T max(node*& root) {
+      if (root-> child[R] == nullptr) {
+        return root-> val;
+      }
+      return max(root-> child[R]);
     }
 
-    int size (node*& root) {
+    int size(node*& root) {
       return root ? root-> size : 0;
     }
  
-    void clear (node*& root) {
+    void clear(node*& root) {
       if (root == nullptr) return;
       clear(root-> child[L]);
       clear(root-> child[R]);
@@ -216,19 +207,19 @@ class Treap {
  
   public:
  
-    void insert (T val, int freq = 1) {
+    void insert(T val, int freq = 1) {
       insert(head, val, freq);
     }
  
-    void erase (T val, int freq = 1) {
+    void erase(T val, int freq = 1) {
       erase(head, val, freq);
     }
    
-    int count (T val) {
+    int count(T val) {
       return count(head, val);
     }
  
-    void dbg () {
+    void dbg() {
       dbg(head, 0);
     }
    
@@ -250,47 +241,47 @@ class Treap {
       return ans;
     }
    
-    int operator < (T val) {
+    int operator <(T val) {
       return smaller(head, --val);
     }
 
-    int operator <= (T val) {
+    int operator <=(T val) {
       return smaller(head, val);
     }
 
-    int operator > (T val) {
+    int operator >(T val) {
       return size() - smaller(head, val);
     }
 
-    int operator >= (T val){
+    int operator >=(T val){
       return size() - smaller(head, --val);
     }
 
-    T operator [] (int val) {
+    T operator [](int val) {
       return kth(head, val);
     }
 
-    T min () {
-    	return min(head);
+    T min() {
+      return min(head);
     }
    
-    T max () {
-    	return max(head);
+    T max() {
+      return max(head);
     }
 
-    T lower_bound (T val) {
-    	return kth(head, smaller(head, --val));
+    T lower_bound(T val) {
+      return kth(head, smaller(head, --val));
     }
 
-    T upper_bound (T val) {
-    	return kth(head, smaller(head, val));
+    T upper_bound(T val) {
+      return kth(head, smaller(head, val));
     }
 
-    int size () {
+    int size() {
       return size(head);
     }
  
-    void clear () {
+    void clear() {
       clear(head);
       head = nullptr;
     }
