@@ -124,4 +124,18 @@ struct Treap {
     root = merge(merge(t1, t2), t3);
     return ans;
   }
+
+  void swap_subarray(int l, int r, int l2, int r2) {
+    if (l > l2) {
+      swap(l, l2);
+      swap(r, r2);
+    }
+    assert(l2 > r);
+    vector<node*> part(5);
+    split(root, part[0], part[1], l);
+    split(part[1], part[1], part[2], r - l + 1);
+    split(part[2], part[2], part[3], l2 - r - 1);
+    split(part[3], part[3], part[4], r2 - l2 + 1);
+    root = merge(part[0], merge(part[3], merge(part[2], merge(part[1], part[4]))));
+  }
 };
