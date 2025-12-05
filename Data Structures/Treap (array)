@@ -3,7 +3,7 @@ struct Treap {
     int64_t val, sum;
     int64_t lazy;
     int pr, sz;
-    node *l, *r;
+    node *l, *r, *parent;
 
     node(int64_t v) {
       val = v;
@@ -12,6 +12,7 @@ struct Treap {
       pr = rand();
       sz = 1;
       l = r = nullptr;
+      parent = nullptr;
     }
   };
   node* root = nullptr;
@@ -62,26 +63,46 @@ struct Treap {
     push_down(t);
     if (sz(t->l) >= k) {
       split(t->l, l, t->l, k);
+      if (t->l) {
+        t->l->parent = t;
+      }
       r = t;
+      r->parent = nullptr;
     } else {
       split(t->r, t->r, r, k - sz(t->l) - 1);
+      if (t->r) {
+        t->r->parent = t;
+      }
       l = t;
+      l->parent = nullptr;
     }
     push_up(t);
   }
 
   node* merge(node* l, node* r) {
     if (!l || !r) {
+      if (l) {
+        l->parent = nullptr;
+      }
+      if (r) {
+        r->parent = nullptr;
+      }
       return l ? l : r;
     }
     if (l->pr > r->pr) {
       push_down(l);
       l->r = merge(l->r, r);
+      if (l->r) {
+        l->r->parent = l;
+      }
       push_up(l);
       return l;
     } else {
       push_down(r);
       r->l = merge(l, r->l);
+      if (r->l) {
+        r->l->parent = r;
+      }
       push_up(r);
       return r;
     }
@@ -91,6 +112,9 @@ struct Treap {
     node *t1, *t2;
     split(root, t1, t2, pos);
     root = merge(merge(t1, new node(v)), t2);
+    if (root) {
+      root->parent = nullptr;
+    }
   }
 
   void erase(int pos) {
@@ -99,6 +123,9 @@ struct Treap {
     split(t2, t2, t3, 1);
     delete t2;
     root = merge(t1, t3);
+    if (root) {
+      root->parent = nullptr;
+    }
   }
 
   void erase(int l, int r) {
@@ -106,6 +133,9 @@ struct Treap {
     split(root, t1, t2, l);
     split(t2, t2, t3, r - l + 1);
     root = merge(t1, t3);
+    if (root) {
+      root->parent = nullptr;
+    }
   }
 
   Treap(vector<int64_t>& a) {
@@ -121,6 +151,9 @@ struct Treap {
     split(t2, t2, t3, r - l + 1);
     apply_lazy(t2, v);
     root = merge(merge(t1, t2), t3);
+    if (root) {
+      root->parent = nullptr;
+    }
   }
 
   int64_t range_sum(int l, int r) {
@@ -129,6 +162,9 @@ struct Treap {
     split(t2, t2, t3, r - l + 1);
     int64_t ans = sm(t2);
     root = merge(merge(t1, t2), t3);
+    if (root) {
+      root->parent = nullptr;
+    }
     return ans;
   }
 
@@ -144,5 +180,8 @@ struct Treap {
     split(part[2], part[2], part[3], l2 - r - 1);
     split(part[3], part[3], part[4], r2 - l2 + 1);
     root = merge(part[0], merge(part[3], merge(part[2], merge(part[1], part[4]))));
+    if (root) {
+      root->parent = nullptr;
+    }
   }
 };
