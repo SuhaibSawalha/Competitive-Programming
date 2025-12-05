@@ -1,0 +1,127 @@
+struct Treap {
+  struct node {
+    int64_t val, sum;
+    int64_t lazy;
+    int pr, sz;
+    node *l, *r;
+
+    node(int64_t v) {
+      val = v;
+      sum = v;
+      lazy = 0;
+      pr = rand();
+      sz = 1;
+      l = r = nullptr;
+    }
+  };
+  node* root = nullptr;
+
+  int sz(node* t) { 
+    return t ? t->sz : 0;
+  }
+  int64_t sm(node* t) {
+    return t ? t->sum : 0;
+  }
+
+  void push_up(node* t) {
+    if (!t) {
+      return;
+    }
+    t->sz = 1 + sz(t->l) + sz(t->r);
+    t->sum = t->val + sm(t->l) + sm(t->r);
+  }
+
+  void apply_lazy(node* t, int64_t v) {
+    if (!t) {
+      return;
+    }
+    t->lazy += v;
+    t->val += v;
+    t->sum += v * sz(t);
+  }
+
+  void push_down(node* t) {
+    if (!t || t->lazy == 0) {
+      return;
+    }
+    apply_lazy(t->l, t->lazy);
+    apply_lazy(t->r, t->lazy);
+    t->lazy = 0;
+  }
+
+  /*
+   Split by index:
+   left = first k elements
+   right = remaining
+  */
+  void split(node* t, node*& l, node*& r, int k) {
+    if (!t) {
+      l = r = nullptr;
+      return;
+    }
+    push_down(t);
+    if (sz(t->l) >= k) {
+      split(t->l, l, t->l, k);
+      r = t;
+    } else {
+      split(t->r, t->r, r, k - sz(t->l) - 1);
+      l = t;
+    }
+    push_up(t);
+  }
+
+  node* merge(node* l, node* r) {
+    if (!l || !r) {
+      return l ? l : r;
+    }
+    if (l->pr > r->pr) {
+      push_down(l);
+      l->r = merge(l->r, r);
+      push_up(l);
+      return l;
+    } else {
+      push_down(r);
+      r->l = merge(l, r->l);
+      push_up(r);
+      return r;
+    }
+  }
+
+  void insert(int pos, int64_t v) {
+    node *t1, *t2;
+    split(root, t1, t2, pos);
+    root = merge(merge(t1, new node(v)), t2);
+  }
+
+  void erase(int pos) {
+    node *t1, *t2, *t3;
+    split(root, t1, t2, pos);
+    split(t2, t2, t3, 1);
+    delete t2;
+    root = merge(t1, t3);
+  }
+
+  Treap(vector<int64_t>& a) {
+    root = nullptr;
+    for (auto &x : a) {
+      root = merge(root, new node(x));
+    }
+  }
+
+  void range_add(int l, int r, int64_t v) {
+    node *t1, *t2, *t3;
+    split(root, t1, t2, l);
+    split(t2, t2, t3, r - l + 1);
+    apply_lazy(t2, v);
+    root = merge(merge(t1, t2), t3);
+  }
+
+  int64_t range_sum(int l, int r) {
+    node *t1, *t2, *t3;
+    split(root, t1, t2, l);
+    split(t2, t2, t3, r - l + 1);
+    int64_t ans = sm(t2);
+    root = merge(merge(t1, t2), t3);
+    return ans;
+  }
+};
