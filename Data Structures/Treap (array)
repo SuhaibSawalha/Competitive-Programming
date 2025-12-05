@@ -101,6 +101,13 @@ struct Treap {
     root = merge(t1, t3);
   }
 
+  void erase(int l, int r) {
+    node *t1, *t2, *t3;
+    split(root, t1, t2, l);
+    split(t2, t2, t3, r - l + 1);
+    root = merge(t1, t3);
+  }
+
   Treap(vector<int64_t>& a) {
     root = nullptr;
     for (auto &x : a) {
