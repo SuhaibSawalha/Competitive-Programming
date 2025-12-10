@@ -105,4 +105,18 @@ struct BitTrie {
     }
     return ans;
   }
+
+  void clear_node(node* cur) {
+    if (!cur) {
+      return;
+    }
+    clear_node(cur->child[0]);
+    clear_node(cur->child[1]);
+    delete cur;
+  }
+
+  void clear() {
+    clear_node(root);
+    root = new node();
+  }
 };
