@@ -1,0 +1,38 @@
+vector<int> simple_sieve(int n) {
+  vector<bool> isPrime(n + 1, true);
+  isPrime[0] = isPrime[1] = false;
+  for (int i = 2; i * i <= n; i++) {
+    if (isPrime[i]) {
+      for (int j = i * i; j <= n; j += i) {
+        isPrime[j] = false;
+      }
+    }
+  }
+  vector<int> primes;
+  for (int i = 2; i <= n; i++) {
+    if (isPrime[i]) primes.push_back(i);
+  }
+  return primes;
+}
+
+vector<int64_t> segmented_sieve(int64_t L, int64_t R) {
+  int64_t limit = floor(sqrt(R)) + 1;
+  vector<int> primes = simple_sieve(limit);
+  vector<bool> isPrime(R - L + 1, true);
+  for (int64_t p : primes) {
+    int64_t start = max(p * p, ((L + p - 1) / p) * p);
+    for (int64_t j = start; j <= R; j += p) {
+      isPrime[j - L] = false;
+    }
+  }
+  if (L == 1) {
+    isPrime[0] = false;
+  }
+  vector<int64_t> result;
+  for (int64_t i = 0; i <= R - L; i++) {
+    if (isPrime[i]) {
+      result.push_back(L + i);
+    }
+  }
+  return result;
+}
