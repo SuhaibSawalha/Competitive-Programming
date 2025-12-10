@@ -1,0 +1,18 @@
+// m is only prime, if not -> factorize it
+struct Congruence {
+  int64_t a, m;
+};
+int64_t chinese_remainder_theorem(vector<Congruence> const& congruences) {
+  int64_t M = 1;
+  for (auto const& congruence : congruences) {
+    M *= congruence.m;
+  }
+  int64_t solution = 0;
+  for (auto const& congruence : congruences) {
+    int64_t a_i = congruence.a;
+    int64_t M_i = M / congruence.m;
+    int64_t N_i = mod_inv(M_i, congruence.m);
+    solution = (solution + a_i * M_i % M * N_i) % M;
+  }
+  return solution;
+}
