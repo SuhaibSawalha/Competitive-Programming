@@ -19,7 +19,7 @@ struct Dinic {
     if (u == snk) {
       return fl;
     }
-    for (; st[u] < adj[u].size(); ++st[u]) {
+    for (; st[u] < (int)adj[u].size(); ++st[u]) {
       auto v = adj[u][st[u]];
       if (dist[u] + 1 == dist[v.first] && cap[v.second]) {
         T f = dfs(v.first, min(fl, cap[v.second]));
@@ -58,11 +58,23 @@ struct Dinic {
     snk = en;
     T mf = 0, flow;
     while (bfs(src)) {
-    	fill(st.begin(), st.end(), 0);
-      while (flow = dfs(src, MAX)) {
+      fill(st.begin(), st.end(), 0);
+      while ((flow = dfs(src, MAX))) {
         mf += flow;
       }
     }
     return mf;
+  }
+
+  vector<array<int, 2>> participating_edges() {
+    vector<array<int, 2>> edges;
+    for (int u = 0; u < (int)visited.size(); ++u) {
+      for (auto &v : adj[u]) {
+        if (visited[u] == vid && visited[v.first] != vid) {
+          edges.push_back({u, v.first});
+        }
+      }
+    }
+    return edges;
   }
 };
