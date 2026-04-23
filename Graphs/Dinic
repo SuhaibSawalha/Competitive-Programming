@@ -54,8 +54,8 @@ struct Dinic {
     return visited[snk] == vid;
   }
 
-  T MaxFlow (int src, int en) {
-    snk = en;
+  T MaxFlow (int src, int snk) {
+    this->snk = snk;
     T mf = 0, flow;
     while (bfs(src)) {
       fill(st.begin(), st.end(), 0);
@@ -76,5 +76,39 @@ struct Dinic {
       }
     }
     return edges;
+  }
+
+  bool restore_path(int u, int en, vector<int>& path) {
+    path.push_back(u);
+    if (u == en) {
+      return true;
+    }
+    for (auto &e : adj[u]) {
+      int v = e.first;
+      int id = e.second;
+
+      if ((id % 2 == 0) && cap[id ^ 1] > 0) {
+        --cap[id ^ 1];
+        ++cap[id];
+
+        if (restore_path(v, en, path)) {
+          return true;
+        }
+        --cap[id];
+        ++cap[id ^ 1];
+      }
+    }
+    path.pop_back();
+    return false;
+  }
+
+  vector<vector<int>> get_paths(int src, int snk, int maxFlow) {
+    vector<vector<int>> paths;
+    while (maxFlow--) {
+      vector<int> path;
+      restore_path(src, snk, path);
+      paths.push_back(path);
+    }
+    return paths;
   }
 };
