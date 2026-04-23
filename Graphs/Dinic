@@ -86,7 +86,7 @@ struct Dinic {
     for (auto &e : adj[u]) {
       int v = e.first;
       int id = e.second;
-      if ((id % 2 == 0) && cap[id ^ 1] > 0) {
+      if (id % 2 == 0 && cap[id ^ 1] > 0) {
         --cap[id ^ 1];
         ++cap[id];
         if (restore_path(v, en, path)) {
