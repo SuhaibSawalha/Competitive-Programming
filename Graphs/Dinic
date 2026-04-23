@@ -89,7 +89,6 @@ struct Dinic {
       if ((id % 2 == 0) && cap[id ^ 1] > 0) {
         --cap[id ^ 1];
         ++cap[id];
-
         if (restore_path(v, en, path)) {
           return true;
         }
