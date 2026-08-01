@@ -1,32 +1,34 @@
-vector<vector<int>> adj;
-vector<int> visidx, lowlink;
-set<array<int, 2>> is_bridge;
-int n, m, dfst;
- 
-void bridge (vector<vector<int>>& adj) {
-  int n = adj.size();
-  lowlink.resize(n);
-  visidx.assign(n, -1);
-  dfst = 0;
-  is_bridge.clear();
-  function<void(int, int)> bridge = [&] (int u, int p) {
-    visidx[u] = lowlink[u] = dfst++;
-    for (int v : adj[u]) {
-      if (visidx[v] == -1) {
-        bridge(v, u);
-        lowlink[u] = min(lowlink[u], lowlink[v]);
-        if (visidx[u] < lowlink[v]) {
-	  	  is_bridge.insert({min(u, v), max(u, v)});
+struct Bridges {
+
+  vector<vector<int>> adj;
+
+  Bridges(vector<vector<int>>& _adj): adj(_adj) {}
+   
+  set<array<int, 2>> get_bridges() {
+    int n = adj.size();
+    vector<int> visidx(n, -1), lowlink(n);
+    int dfst = 0;
+    set<array<int, 2>> bridges;
+    function<void(int, int)> bridge = [&] (int u, int p) {
+      visidx[u] = lowlink[u] = dfst++;
+      for (int v : adj[u]) {
+        if (visidx[v] == -1) {
+          bridge(v, u);
+          lowlink[u] = min(lowlink[u], lowlink[v]);
+          if (visidx[u] < lowlink[v]) {
+            bridges.insert({min(u, v), max(u, v)});
+          }
+        }
+        else if (v != p) {
+          lowlink[u] = min(lowlink[u], visidx[v]);
         }
       }
-      else if (v != p) {
-        lowlink[u] = min(lowlink[u], visidx[v]);
+    };
+    for (int i = 0; i < n; ++i) {
+      if (visidx[i] == -1) {
+        bridge(i, -1);
       }
     }
-  };
-  for (int i = 0; i < n; ++i) {
-    if (visidx[i] == -1) {
-      bridge(i, -1);
-    }
-   }
-}
+    return bridges;
+  }
+};
