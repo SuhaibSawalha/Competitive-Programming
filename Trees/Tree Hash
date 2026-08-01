@@ -1,0 +1,87 @@
+struct TreeHash {
+
+  typedef vector<vector<int>> adj_list;
+  map<vector<int>, int> ids;
+
+  vector<int> hashAll(adj_list const &adj, int root) {
+    int n = adj.size();
+    vector<int> h(n);
+    auto dfs = [&](auto &&self, int u, int p) -> void {
+      vector<int> children;
+      for (int v : adj[u]) {
+        if (v != p) {
+          self(self, v, u);
+          children.push_back(h[v]);
+        }
+      }
+      sort(children.begin(), children.end());
+      auto [it, inserted] = ids.emplace(children, ids.size());
+      h[u] = it->second;
+    };
+    dfs(dfs, root, -1);
+    return h;
+  }
+
+  int hash(adj_list const &adj, int root) {
+    return hashAll(adj, root)[root];
+  }
+
+  bool equal(adj_list const &adjA, adj_list const &adjB, int root) {
+    return hash(adjA, root) == hash(adjB, root);
+  }
+
+  vector<int> centers(adj_list const &adj) {
+    int n = adj.size();
+    if (n <= 2) {
+      vector<int> c(n);
+      iota(c.begin(), c.end(), 0);
+      return c;
+    }
+    vector<int> deg(n);
+    queue<int> q;
+    for (int i = 0; i < n; ++i) {
+      deg[i] = adj[i].size();
+      if (deg[i] == 1) {
+        q.push(i);
+      }
+    }
+    int rem = n;
+    while (rem > 2) {
+      int sz = q.size();
+      rem -= sz;
+      while (sz--) {
+        int u = q.front();
+        q.pop();
+        for (int v : adj[u]) {
+          if (--deg[v] == 1) {
+            q.push(v);
+          }
+        }
+      }
+    }
+    vector<int> c;
+    while (!q.empty()) {
+      c.push_back(q.front());
+      q.pop();
+    }
+    return c;
+  }
+
+  bool equal(adj_list const &adjA, adj_list const &adjB) {
+    if (adjA.size() != adjB.size()) {
+      return false;
+    }
+    auto cA = centers(adjA);
+    auto cB = centers(adjB);
+    vector<int> hA, hB;
+    for (int r : cA) {
+      hA.push_back(hash(adjA, r));
+    }
+    for (int r : cB) {
+      hB.push_back(hash(adjB, r));
+    }
+    sort(hA.begin(), hA.end());
+    sort(hB.begin(), hB.end());
+    return hA == hB;
+  }
+};
