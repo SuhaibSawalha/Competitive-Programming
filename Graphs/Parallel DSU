@@ -1,14 +1,14 @@
 struct Parallel_DSU {
- 
+
   int n;
   vector<DSU> dsu;
- 
+
   Parallel_DSU(int _n): n(_n) {
     for (int i = 0; (1 << i) <= n; ++i) {
       dsu.push_back(DSU(n - (1 << i) + 1));
     }
   }
- 
+
   void operator ()(int u, int v, int len) {
     while (len) {
       int pw = len & -len;
@@ -18,22 +18,20 @@ struct Parallel_DSU {
       v += pw;
     }
   }
- 
-  DSU calculate() {
+
+  DSU* calculate() {
     for (int i = (int)dsu.size() - 1; i; --i) {
       int m = dsu[i].n;
-      vector<vector<int>> cmp(m);
+      vector<int> last(m, -1);
       for (int j = 0; j < m; ++j) {
-        cmp[dsu[i][j]].push_back(j);
-      }
-      for (int j = 0; j < m; ++j) {
-        vector<int> &v = cmp[j];
-        for (int k = 1; k < (int)v.size(); ++k) {
-          dsu[i - 1](v[k - 1], v[k]);
-          dsu[i - 1](v[k - 1] + (1 << (i - 1)), v[k] + (1 << (i - 1)));
+        int leader = dsu[i][j];
+        if (last[leader] != -1) {
+          dsu[i - 1](last[leader], j);
+          dsu[i - 1](last[leader] + (1 << (i - 1)), j + (1 << (i - 1)));
         }
+        last[leader] = j;
       }
     }
-    return dsu[0];
+    return &dsu[0];
   }
 };
