@@ -1,0 +1,88 @@
+struct Dynamic_Connectivity {
+
+  int n;
+  vector<array<int, 3>> actions;
+  map<array<int, 2>, array<int, 2>> record;
+  vector<int> in, out;
+
+  Dynamic_Connectivity(int _n): n(_n) {}
+
+  array<int, 2> get_edge(int u, int v) {
+    if (u > v) {
+      swap(u, v);
+    }
+    return {u, v};
+  }
+
+  void add(int u, int v) {
+    auto e = get_edge(u, v);
+    int pos = actions.size();
+    actions.push_back({e[0], e[1], 1});
+    if (record.count(e) && record[e][1] == 1) {
+      out.push_back(-1);
+    } else {
+      out.push_back(INT_MAX);
+      record[e] = {pos, 1};
+    }
+    in.push_back(-1);
+  }
+
+  void remove(int u, int v) {
+    auto e = get_edge(u, v);
+    int pos = actions.size();
+    actions.push_back({e[0], e[1], -1});
+    if (record.count(e) && record[e][1] == -1) {
+      in.push_back(-1);
+    } else {
+      out[record[e][0]] = pos;
+      in.push_back(record[e][0]);
+      record[e] = {pos, -1};
+    }
+    out.push_back(-1);
+  }
+
+  vector<int> connectedComponents() {
+    int q = actions.size();
+    vector<vector<array<int, 2>>> seg(4 * q);
+    auto add_interval = [&](auto&& self, int node, int l, int r, int ql, int qr, array<int, 2> edge) -> void {
+      if (qr <= l || r <= ql) {
+        return;
+      }
+      if (ql <= l && r <= qr) {
+        seg[node].push_back(edge);
+        return;
+      }
+      int mid = (l + r) / 2;
+      self(self, node * 2, l, mid, ql, qr, edge);
+      self(self, node * 2 + 1, mid, r, ql, qr, edge);
+    };
+    for (int i = 0; i < q; ++i) {
+      if (actions[i][2] != 1 || out[i] == -1) {
+        continue;
+      }
+      int r = out[i];
+      if (r == INT_MAX) {
+        r = q;
+      }
+      add_interval(add_interval, 1, 0, q, i, r, {actions[i][0], actions[i][1]});
+    }
+    Rollback_DSU dsu(n);
+    vector<int> ans(q);
+    auto solve = [&](auto&& self, int node, int l, int r) -> void {
+      int prv = dsu.history.size();
+      for (auto [u, v] : seg[node]) {
+        dsu(u, v);
+      }
+      if (r - l == 1) {
+        ans[l] = dsu.Ncmp;
+      } else {
+        int mid = (l + r) / 2;
+        self(self, node * 2, l, mid);
+        self(self, node * 2 + 1, mid, r);
+      }
+      dsu.rollback((int)dsu.history.size() - prv);
+    };
+    solve(solve, 1, 0, q);
+    return ans;
+  }
+};
