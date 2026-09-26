@@ -1,0 +1,43 @@
+struct Rollback_DSU {
+  int n, Ncmp;
+  vector<int> dsu, sz;
+  vector<array<int, 3>> history;
+
+  Rollback_DSU(int _n): n(_n), Ncmp(_n), dsu(_n), sz(_n, 1) {
+    iota(dsu.begin(), dsu.end(), 0);
+  }
+
+  int operator [](int u) {
+    return u == dsu[u] ? u : (*this)[dsu[u]];
+  }
+
+  int operator ()(int u, int v) {
+    u = (*this)[u], v = (*this)[v];
+    if (u == v) {
+      history.push_back({-1, -1, 0});
+      return 0;
+    }
+    if (sz[u] < sz[v]) {
+      swap(u, v);
+    }
+    history.push_back({v, u, 1});
+    dsu[v] = u;
+    sz[u] += sz[v];
+    Ncmp--;
+
+    return 1;
+  }
+
+  void rollback(int cnt = 1) {
+    while (cnt--) {
+      auto [v, u, merged] = history.back();
+      history.pop_back();
+      if (!merged) {
+        continue;
+      }
+      sz[u] -= sz[v];
+      dsu[v] = v;
+      Ncmp++;
+    }
+  }
+};
