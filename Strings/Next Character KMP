@@ -1,6 +1,5 @@
-// Modified by Wewe <3
 template <class T = string> 
-vector<vector<int>> kmp (const T &s){
+vector<vector<int>> kmp(const T &s){
   int n = s.size();
   vector<int> fail(n);
   vector<vector<int>> ans(n + 1, vector<int>(26, 0));
@@ -14,14 +13,13 @@ vector<vector<int>> kmp (const T &s){
     }
     fail[i] = len + (s[len] == s[i]);
   }
-  for (int i = 1; i <= n; i++) {
-    for (int j = 0; j < 26; j++) {
-      char c = 'a' + j;
-      int len = i == n ? fail[i - 1] : i;
-      while (len && c != s[len]) {
-        len = fail[len - 1];
+  for (int i = 0; i <= n; ++i) {
+    for (int c = 0; c < 26; ++c) {
+      if (i < n && s[i] - 'a' == c) {
+        ans[i][c] = i + 1;
+      } else {
+        ans[i][c] = i ? ans[fail[i - 1]][c] : 0;
       }
-      ans[i][j] = len + (c == s[len]);
     }
   }
   return ans;
