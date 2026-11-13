@@ -1,18 +1,11 @@
 struct DSU {
   int n, Ncmp;
-  vector<int> dsu, siz;
-  vector<list<int>> cmp;
+  vector<int> p;
 
-  DSU(int _n): n(_n), Ncmp(_n), dsu(_n), siz(_n), cmp(_n) {
-    for (int i = 0; i < n; ++i) {
-      dsu[i] = i;
-      siz[i] = 1;
-      cmp[i].push_back(i);
-    }
-  }
+  DSU(int _n): n(_n), Ncmp(_n), p(_n, -1) {}
 
   int operator [](int u) {
-    return u == dsu[u] ? u : dsu[u] = (*this)[dsu[u]];
+    return p[u] < 0 ? u : p[u] = (*this)[p[u]];
   }
 
   int operator ()(int u, int v) {
@@ -20,14 +13,16 @@ struct DSU {
     if (u == v) {
       return 0;
     }
-    if (siz[u] < siz[v]) {
+    if (p[u] > p[v]) {
       swap(u, v);
     }
-    dsu[v] = u;
-    siz[u] += siz[v];
-    siz[v] = 0;
+    p[u] += p[v];
+    p[v] = u;
     Ncmp--;
-    cmp[u].splice(cmp[u].end(), cmp[v]);
     return 1;
+  }
+
+  int size(int u) {
+    return -p[(*this)[u]];
   }
 };
