@@ -1,24 +1,34 @@
+void fwht(vector<int64_t> &a, bool inverse) {
+  int n = a.size();
+  for (int len = 1; len < n; len <<= 1) {
+    for (int i = 0; i < n; i += 2 * len) {
+      for (int j = i; j < i + len; ++j) {
+        int64_t u = a[j], v = a[j + len];
+        a[j] = u + v;
+        a[j + len] = u - v;
+      }
+    }
+  }
+  if (inverse) {
+    for (auto &x : a) {
+      x /= n;
+    }
+  }
+}
+
 void XorConvolution(vector<int64_t> &a, vector<int64_t> &b, vector<int64_t> &c) {
-  int m = (int) a.size();
-  c.resize(m);
-  if (m == 1) {
-    c[0] = a[0] * b[0];
-    return;
+  assert(!a.empty());
+  assert(a.size() == b.size());
+  assert((a.size() & (a.size() - 1)) == 0);
+
+  vector<int64_t> bb = b;
+  c = a;
+  fwht(c, false);
+  fwht(bb, false);
+  for (size_t i = 0; i < c.size(); ++i) {
+    c[i] *= bb[i];
   }
-  vector<int64_t> ap, bp, an, bn;
-  for (int i = 0; i < m / 2; i++) {
-    ap.push_back(a[i] + a[i + m / 2]);
-    bp.push_back(b[i] + b[i + m / 2]);
-    an.push_back(a[i] - a[i + m / 2]);
-    bn.push_back(b[i] - b[i + m / 2]);
-  }
-  vector<int64_t> d0, d1;
-  XorConvolution(ap, bp, d0);
-  XorConvolution(an, bn, d1);
-  for (int i = 0; i < m / 2; i++) {
-    c[i] = (d0[i] + d1[i]) / 2;
-    c[i + m / 2] = (d0[i] - d1[i]) / 2;
-  }
+  fwht(c, true);
 }
 
 // cnt2[0] -= n, cnt[i] /= 2
